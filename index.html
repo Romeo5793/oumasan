@@ -47,7 +47,54 @@
     @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     .toast-anim { animation: slideDown 0.3s ease-out forwards; }
 
-    /* --- お祭り感アニメーション V2 --- */
+    /* 背景のドットを無限スクロールさせる */
+    @keyframes movePattern {
+      0% { background-position: 0 0; }
+      100% { background-position: 24px 24px; }
+    }
+    .bg-animated {
+      background-image: radial-gradient(#ffcc80 2.5px, transparent 2.5px);
+      background-size: 24px 24px;
+      animation: movePattern 2s linear infinite;
+    }
+
+    /* 桃鉄風の派手に跳ねるタイトル文字 */
+    .momo-title span {
+      display: inline-block;
+      font-family: 'Arial Black', Impact, sans-serif;
+      color: #fff;
+      -webkit-text-stroke: 1.5px #d84315;
+      text-shadow: 2px 2px 0px #d84315, 4px 4px 0px rgba(0,0,0,0.3);
+      animation: charBounce 1s infinite;
+    }
+    .momo-title span:nth-child(1) { color: #FFEB3B; animation-delay: 0.0s; } /* ハ */
+    .momo-title span:nth-child(2) { color: #FF9800; animation-delay: 0.1s; } /* ッ */
+    .momo-title span:nth-child(3) { color: #4CAF50; animation-delay: 0.2s; } /* ピ */
+    .momo-title span:nth-child(4) { color: #03A9F4; animation-delay: 0.3s; } /* ー */
+    .momo-title span:nth-child(5) { color: #9C27B0; animation-delay: 0.4s; } /* 予 */
+    .momo-title span:nth-child(6) { color: #E91E63; animation-delay: 0.5s; } /* 想 */
+    .momo-title span:nth-child(7) { color: #FFEB3B; animation-delay: 0.6s; } /* A */
+    .momo-title span:nth-child(8) { color: #00BCD4; animation-delay: 0.7s; } /* I */
+    
+    @keyframes charBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.1) rotate(5deg); }
+    }
+
+    /* 常時画面を漂うパーティクル（絵文字） */
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+    }
+    .bg-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatUp linear infinite;
+    }
+
     @keyframes horseDash {
       0% { transform: translateX(-3px) skewX(0deg); }
       50% { transform: translateX(3px) skewX(-15deg); }
@@ -66,7 +113,7 @@
       border-width: 2px;
     }
 
-    /* 入力欄のポヨンとした楽しい動き */
+    /* 入力欄のポヨンとした動き */
     .fun-input { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .fun-input:focus {
       transform: scale(1.05) translateY(-2px);
@@ -74,14 +121,12 @@
       z-index: 10;
     }
     
-    /* リスト行ホバー時の軽いジャンプ */
     @keyframes hop {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-3px); }
     }
     .hover-hop:hover { animation: hop 0.4s ease; }
 
-    /* ランキングバーの上を走る馬 */
     .racing-horse {
       position: absolute;
       top: -22px;
@@ -92,8 +137,7 @@
     }
   </style>
 </head>
-<!-- 背景を楽しいドット柄に変更 -->
-<body class="bg-[#FFFBF0] text-gray-800 font-sans min-h-screen pb-10 relative" style="background-image: radial-gradient(#fed7aa 1.5px, transparent 1.5px); background-size: 24px 24px;">
+<body class="bg-[#FFF8E1] text-gray-800 font-sans min-h-screen pb-10 relative bg-animated overflow-x-hidden">
 
   <!-- トースト通知 -->
   <div id="toast" class="hidden fixed top-4 left-1/2 z-50 flex items-center px-5 py-3 rounded-2xl shadow-lg font-bold text-sm toast-anim">
@@ -101,7 +145,7 @@
   </div>
 
   <!-- エラーログ表示モーダル -->
-  <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+  <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm relative z-50">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col">
       <h3 class="font-black text-red-600 mb-2 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> エラーログ</h3>
       <p class="text-xs text-gray-500 mb-3">環境制限のためCSVファイルの自動保存ができませんでした。以下のログをコピーしてご確認ください。</p>
@@ -110,126 +154,131 @@
     </div>
   </div>
 
-  <!-- ログイン画面 -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl max-w-md w-full border-2 border-orange-100">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 relative z-10">
+    <div class="bg-white/90 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl max-w-md w-full border-4 border-yellow-400">
       <div class="flex justify-center mb-6 relative">
-        <div class="p-4 bg-orange-50 rounded-2xl border border-orange-200 shadow-inner relative z-10">
-          <i data-lucide="bot" class="w-12 h-12 text-orange-500"></i>
+        <div class="p-4 bg-gradient-to-tr from-orange-100 to-yellow-50 rounded-full border-2 border-orange-200 shadow-inner relative z-10 animate-bounce">
+          <i data-lucide="bot" class="w-16 h-16 text-orange-500"></i>
         </div>
         <!-- 周りのお祭り装飾 -->
-        <span class="absolute top-0 right-10 text-2xl animate-bounce" style="animation-delay: 0.1s">🎉</span>
-        <span class="absolute top-4 left-10 text-2xl animate-bounce" style="animation-delay: 0.3s">🥕</span>
-        <span class="absolute -bottom-2 right-12 text-2xl animate-bounce" style="animation-delay: 0.5s">🐴</span>
+        <span class="absolute top-0 right-10 text-3xl animate-pulse" style="animation-delay: 0.1s">🎉</span>
+        <span class="absolute top-4 left-10 text-3xl animate-pulse" style="animation-delay: 0.3s">💰</span>
+        <span class="absolute -bottom-2 right-12 text-3xl animate-pulse" style="animation-delay: 0.5s">🐴</span>
       </div>
-      <h1 class="text-2xl font-black text-center text-gray-800 mb-1">ハッピー予想AI <span class="text-orange-500 font-black text-xl ml-1">V2</span></h1>
-      <p class="text-center text-xs font-bold text-orange-500 mb-8 bg-orange-50 py-1 px-3 rounded-full inline-block mx-auto block w-fit">お祭りUI追加版！</p>
       
-      <form id="loginForm" class="space-y-5">
+      <!-- 桃鉄風ド派手タイトル -->
+      <h1 class="text-3xl sm:text-4xl font-black text-center mb-2 flex justify-center momo-title tracking-tight">
+        <span>ハ</span><span>ッ</span><span>ピ</span><span>ー</span><span>予</span><span>想</span><span>A</span><span>I</span>
+        <span class="text-red-500 ml-2" style="-webkit-text-stroke: 1.5px #fff; text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.3); animation: charBounce 0.8s infinite reverse;">V2</span>
+      </h1>
+      
+      <p class="text-center text-xs font-black text-orange-600 mb-8 bg-yellow-100 py-1.5 px-4 rounded-full inline-block mx-auto block w-fit shadow-sm border border-yellow-300">お祭りUI 大幅強化版！🎊</p>
+      
+      <form id="loginForm" class="space-y-5 relative z-10">
         <div>
           <label class="block text-xs font-bold text-gray-500 mb-2 ml-1">APIキー (パスワード)</label>
           <input 
             type="password" 
             id="apiKeyInput"
-            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-50 transition-all fun-input"
+            class="w-full bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-4 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100 transition-all fun-input"
             placeholder="Gemini API Key (テストは 'demo')"
             required
           />
         </div>
         <button 
           type="submit"
-          class="w-full flex justify-center items-center px-6 py-4 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-black hover:to-gray-900 text-white font-black rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all"
+          class="w-full flex justify-center items-center px-6 py-4 bg-gradient-to-b from-gray-800 to-black hover:from-black hover:to-gray-900 text-white font-black rounded-2xl shadow-[0_6px_0_#333] active:shadow-[0_0px_0_#333] active:translate-y-[6px] transition-all text-lg"
         >
-          アプリを起動する 🚀
+          出発進行ーっ！ 🚂💨
         </button>
       </form>
     </div>
   </div>
 
-  <!-- メインアプリ画面 -->
   <div id="mainApp" class="hidden max-w-6xl mx-auto space-y-4 p-3 sm:p-4 relative z-10">
     <!-- ナビゲーション -->
-    <div class="flex justify-end gap-2 px-1">
-      <button onclick="window.open('https://www.jra.go.jp/kouyu/app/', '_blank')" class="flex items-center gap-1.5 px-3 py-1.5 bg-white text-green-700 text-xs font-bold rounded-full border border-green-200 hover:bg-green-50 shadow-sm active:scale-95 transition-all">
-        <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> アプリ
+    <div class="flex justify-end gap-2 px-1 relative z-20">
+      <button onclick="window.open('https://www.jra.go.jp/kouyu/app/', '_blank')" class="flex items-center gap-1.5 px-4 py-2 bg-white/90 backdrop-blur-sm text-green-700 text-xs font-black rounded-full border-2 border-green-200 hover:bg-green-50 shadow-sm active:scale-95 transition-all">
+        <i data-lucide="smartphone" class="w-4 h-4"></i> アプリ
       </button>
-      <button onclick="window.open('https://www.ipat.jra.go.jp/', '_blank')" class="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-full hover:bg-green-700 shadow-sm active:scale-95 transition-all">
-        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> 即PAT
+      <button onclick="window.open('https://www.ipat.jra.go.jp/', '_blank')" class="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white text-xs font-black rounded-full hover:bg-green-700 shadow-sm active:scale-95 transition-all border-2 border-green-700">
+        <i data-lucide="external-link" class="w-4 h-4"></i> 即PAT
       </button>
     </div>
 
     <!-- ヘッダー -->
-    <header class="bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 rounded-3xl p-3 sm:p-5 flex items-center justify-between shadow-md relative overflow-hidden">
-      <!-- ヘッダー内の装飾お祭り感 -->
-      <div class="absolute -right-2 -top-2 opacity-30 text-6xl">🏇</div>
-      <div class="absolute left-1/2 -top-4 opacity-20 text-5xl">🎉</div>
-      <div class="absolute left-1/3 bottom-0 opacity-20 text-4xl">🥕</div>
+    <header class="bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 rounded-3xl p-3 sm:p-5 flex items-center justify-between shadow-lg relative overflow-hidden border-b-4 border-orange-600">
+      <div class="absolute -right-2 -top-2 opacity-30 text-7xl animate-pulse">🏇</div>
+      <div class="absolute left-1/4 -top-6 opacity-20 text-6xl rotate-12">🎉</div>
+      <div class="absolute left-1/2 bottom-0 opacity-20 text-5xl -rotate-12">💰</div>
 
       <div class="flex items-center space-x-3 relative z-10">
-        <div class="p-2 sm:p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/40 text-white shadow-sm">
-          <i data-lucide="trophy" class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-100"></i>
+        <div class="p-2 sm:p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/40 text-yellow-200 shadow-inner">
+          <i data-lucide="trophy" class="w-6 h-6 sm:w-8 sm:h-8"></i>
         </div>
         <div>
-          <h1 class="text-lg sm:text-2xl font-black text-white leading-tight flex items-center gap-2">
-            ハッピー予想AI
-            <span class="bg-white text-orange-500 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-black shadow-sm">V2</span>
+          <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-center momo-title tracking-tight">
+            <span>ハ</span><span>ッ</span><span>ピ</span><span>ー</span><span>予</span><span>想</span><span>A</span><span>I</span>
+            <span class="ml-2 text-red-500" style="-webkit-text-stroke: 1.5px #fff; text-shadow: 2px 2px 0px #fff, 3px 3px 0px rgba(0,0,0,0.3); animation: charBounce 0.8s infinite reverse;">V2</span>
           </h1>
-          <p class="text-[10px] sm:text-xs text-orange-50 font-bold mt-0.5">高精度アナリストモード稼働中 ✨</p>
+          <p class="text-[10px] sm:text-xs text-white font-black mt-0.5 drop-shadow-md">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
       </div>
-      <button onclick="app.renderRankings(true)" class="flex items-center px-4 py-2 sm:px-6 sm:py-3 font-black text-orange-600 bg-white rounded-full hover:bg-orange-50 shadow-lg active:scale-95 transition-all text-xs sm:text-sm relative z-10 hover:shadow-orange-300/50">
-        <i data-lucide="sparkles" class="w-4 h-4 mr-1 text-orange-500"></i> <span class="hidden sm:inline">再計算</span><span class="sm:hidden">計算</span>
+      <button onclick="app.renderRankings(true)" class="flex items-center px-4 py-2 sm:px-6 sm:py-3 font-black text-orange-600 bg-yellow-300 rounded-full hover:bg-yellow-200 shadow-[0_4px_0_#F57F17] active:shadow-[0_0px_0_#F57F17] active:translate-y-[4px] transition-all text-xs sm:text-base relative z-10 border-2 border-yellow-500">
+        <i data-lucide="sparkles" class="w-5 h-5 mr-1 text-orange-600"></i> <span class="hidden sm:inline">再計算する！</span><span class="sm:hidden">計算</span>
       </button>
     </header>
 
     <!-- コントロールパネル -->
-    <div class="bg-white/80 backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-white shadow-sm flex flex-col gap-3">
+    <div class="bg-white/90 backdrop-blur-md p-3 sm:p-5 rounded-3xl border-2 border-white shadow-lg flex flex-col gap-3 relative z-10">
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <i data-lucide="search" class="w-5 h-5 text-orange-400"></i>
+          <i data-lucide="search" class="w-6 h-6 text-blue-500"></i>
         </div>
-        <select id="raceSelect" onchange="app.changeRace(this.value)" class="w-full bg-white border-2 border-orange-100 rounded-2xl pl-12 pr-10 py-3.5 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-50 transition-all appearance-none cursor-pointer shadow-sm fun-input">
-          <option value="" disabled selected>👉 レースを選択 / AIに探してもらう</option>
+        <select id="raceSelect" onchange="app.changeRace(this.value)" class="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl pl-12 pr-10 py-4 text-sm sm:text-base font-black text-blue-900 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all appearance-none cursor-pointer shadow-sm fun-input">
+          <option value="" disabled selected>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>
         </select>
         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-          <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+          <i data-lucide="chevron-down" class="w-6 h-6 text-blue-400"></i>
         </div>
       </div>
-      <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-md hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 transition-all">
-        <i data-lucide="bot" id="aiBtnIcon" class="w-5 h-5 mr-2"></i> 
-        <span id="aiBtnText">アナリストAIに精密調査を依頼</span>
+      <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-black rounded-2xl shadow-[0_6px_0_#1E3A8A] active:shadow-[0_0px_0_#1E3A8A] active:translate-y-[6px] transition-all text-base sm:text-lg">
+        <i data-lucide="bot" id="aiBtnIcon" class="w-6 h-6 mr-2"></i> 
+        <span id="aiBtnText">アナリストAIに精密調査を依頼する 🚀</span>
       </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 relative z-10">
       <!-- 左側：データ入力パネル -->
       <div class="space-y-3">
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-md overflow-hidden min-h-[300px] flex flex-col relative">
-          <!-- パネル背景のうっすら馬模様 -->
-          <div class="absolute bottom-0 left-0 opacity-[0.03] text-9xl pointer-events-none -mb-4 -ml-4">🐴</div>
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-orange-200 shadow-lg overflow-hidden min-h-[300px] flex flex-col relative">
+          <div class="absolute bottom-0 left-0 opacity-[0.05] text-9xl pointer-events-none -mb-4 -ml-4">🐴</div>
 
-          <div class="p-3 sm:p-4 bg-orange-50/80 backdrop-blur flex justify-between items-center border-b border-orange-100/50">
+          <div class="p-3 sm:p-4 bg-gradient-to-r from-orange-100 to-yellow-50 flex justify-between items-center border-b-2 border-orange-200">
             <div>
-              <h2 id="raceTitle" class="text-base sm:text-lg font-black text-gray-800 flex items-center">
-                <i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-500"></i> データ入力
+              <h2 id="raceTitle" class="text-base sm:text-lg font-black text-orange-900 flex items-center drop-shadow-sm">
+                <i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-600"></i> データ入力ステーション
               </h2>
-              <p id="raceSubtitle" class="text-[10px] sm:text-xs font-bold text-gray-500 flex items-center mt-1 hidden">
+              <p id="raceSubtitle" class="text-[10px] sm:text-xs font-bold text-orange-600 flex items-center mt-1 hidden bg-white/50 px-2 py-0.5 rounded-md w-fit">
                 <i data-lucide="calendar" class="w-3 h-3 mr-1"></i> <span id="raceSubtitleText"></span>
               </p>
             </div>
-            <button onclick="app.addHorse()" class="flex items-center px-4 py-2 bg-white border border-orange-200 text-orange-600 hover:bg-orange-50 text-xs sm:text-sm font-black rounded-full shadow-sm active:scale-95 transition-all">
-              <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> 追加
+            <button onclick="app.addHorse()" class="flex items-center px-4 py-2.5 bg-white border-2 border-orange-300 text-orange-600 hover:bg-orange-50 text-xs sm:text-sm font-black rounded-full shadow-sm active:scale-95 transition-all">
+              <i data-lucide="plus" class="w-4 h-4 mr-1"></i> 追加
             </button>
           </div>
 
-          <div id="emptyDataMsg" class="flex-1 flex flex-col items-center justify-center min-h-[200px] text-orange-200">
-            <i data-lucide="bot" class="w-12 h-12 mb-3 text-orange-200 animate-pulse"></i>
-            <p class="font-bold text-sm text-orange-400">上の青いボタンで調査を開始！</p>
+          <div id="emptyDataMsg" class="flex-1 flex flex-col items-center justify-center min-h-[250px] text-orange-300">
+            <div class="relative">
+              <i data-lucide="bot" class="w-16 h-16 mb-3 text-orange-200 animate-bounce"></i>
+              <span class="absolute -top-2 -right-4 text-3xl animate-pulse">🎯</span>
+            </div>
+            <p class="font-black text-base text-orange-500 bg-orange-50 px-4 py-2 rounded-full border border-orange-200 shadow-sm">上の青いボタンで調査を開始！</p>
           </div>
 
           <div id="horseTableContainer" class="hidden p-3 overflow-x-auto custom-scrollbar relative z-10">
-            <div class="min-w-[740px] space-y-2 pb-2">
-              <div class="grid grid-cols-12 gap-2 text-[11px] font-black text-gray-400 text-center pb-1 px-1">
+            <div class="min-w-[760px] space-y-2 pb-2">
+              <div class="grid grid-cols-12 gap-2 text-[11px] font-black text-orange-400 text-center pb-1 px-1">
                 <div class="col-span-1">枠</div>
                 <div class="col-span-3 text-left pl-2">馬名</div>
                 <div class="col-span-2">オッズ</div>
@@ -245,23 +294,22 @@
 
       <!-- 右側：解析結果パネル -->
       <div class="space-y-3">
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-md overflow-hidden min-h-[400px] flex flex-col">
-          <div class="p-3 sm:p-4 bg-gray-900 flex justify-between items-center relative overflow-hidden">
-             <!-- 背景のお祭りアイコン -->
-            <div class="absolute inset-0 opacity-15 flex flex-wrap gap-3 pointer-events-none p-1 items-center justify-around text-xl">
-                <span>🎉</span><span>🎯</span><span>👑</span><span>🥕</span><span>💸</span><span>🎉</span><span>🎯</span><span>👑</span>
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-pink-200 shadow-lg overflow-hidden min-h-[400px] flex flex-col">
+          <div class="p-3 sm:p-4 bg-gradient-to-r from-gray-900 to-gray-800 flex justify-between items-center relative overflow-hidden border-b-4 border-pink-500">
+            <div class="absolute inset-0 opacity-20 flex flex-wrap gap-4 pointer-events-none p-2 items-center justify-around text-2xl">
+                <span class="animate-pulse">🎉</span><span class="animate-bounce">🎯</span><span>👑</span><span class="animate-pulse">🥕</span><span class="animate-bounce">💸</span><span>🎉</span>
             </div>
-            <h2 class="text-base sm:text-lg font-black text-white flex items-center relative z-10">
-              <i data-lucide="target" class="w-5 h-5 mr-1.5 text-orange-400"></i> お宝ランキング
+            <h2 class="text-base sm:text-xl font-black text-white flex items-center relative z-10 drop-shadow-md tracking-widest">
+              <i data-lucide="target" class="w-6 h-6 mr-2 text-pink-400"></i> ✨ お宝ランキング ✨
             </h2>
           </div>
           
-          <div id="rankingContainer" class="p-3 sm:p-4 bg-gradient-to-b from-gray-50 to-white min-h-[350px] flex-1">
+          <div id="rankingContainer" class="p-3 sm:p-5 bg-gradient-to-b from-gray-50 to-pink-50/30 min-h-[350px] flex-1">
              <div id="emptyRankingMsg" class="flex flex-col items-center justify-center py-16 text-gray-300">
-              <i data-lucide="target" class="w-12 h-12 mb-3 text-gray-200"></i>
-              <p class="font-bold text-sm text-gray-400">データがありません</p>
+              <i data-lucide="target" class="w-16 h-16 mb-4 text-gray-200"></i>
+              <p class="font-black text-base text-gray-400">データがありません</p>
             </div>
-            <div id="rankingList" class="space-y-4"></div> <!-- space-y-4に広げて馬が走るスペースを確保 -->
+            <div id="rankingList" class="space-y-5"></div>
           </div>
         </div>
       </div>
@@ -278,25 +326,72 @@
     // --- 📋 要求履歴・実装履歴の自己チェック機能 ---
     const appHistory = [
       { date: "2026-06-20", detail: "APIキー入力とdemoキー対応の実装" },
-      { date: "2026-06-20", detail: "スマホ向けUI最適化・お祭り演出" },
-      { date: "2026-06-21", detail: "プレビューのiframe制限によるStorage/CSV保存エラーの回避" },
       { date: "2026-06-21", detail: "APIからモデル一覧を自動取得し、PROを除外した中で最適なモデルを自動選択" },
-      { date: "2026-06-21", detail: "Liteモデル（検索機能非対応）を候補から除外し、429エラーを回避する修正" },
-      { date: "2026-06-21", detail: "最新モデルで制限エラー(429)が起きた場合、次点の候補モデルへ自動的に切り替えて再挑戦する自己修復機能を追加" },
-      { date: "2026-06-21", detail: "アプリ名を「V2」に変更し、UI全体をより楽しくなるお祭り感（ドット背景、ホップアニメーション、走る馬のバー）へアップデート" }
+      { date: "2026-06-21", detail: "Liteモデルを除外し、429エラーを回避するフォールバック自己修復機能を追加" },
+      { date: "2026-06-21", detail: "桃鉄でゴールした時のような「わちゃわちゃ感・お祭り感」を全画面に徹底的に追加（ド派手アニメーション、常時パーティクル、クリックエフェクト等）" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
 
-    const safeStorage = {
-      get: (key) => {
-        try { return localStorage.getItem(key); } 
-        catch (e) { return window['_safe_' + key] || null; }
-      },
-      set: (key, val) => {
-        try { localStorage.setItem(key, val); } 
-        catch (e) { window['_safe_' + key] = val; }
+    // --- わちゃわちゃ演出：常時舞う背景パーティクル ---
+    function initBackgroundParticles() {
+      const container = document.createElement('div');
+      container.className = 'fixed inset-0 pointer-events-none z-0 overflow-hidden';
+      document.body.appendChild(container);
+      
+      const emojis = ['🎉', '💰', '✨', '🐴', '🥕', '🎯', '🎰', '🎊', '💴', '👑'];
+      for (let i = 0; i < 25; i++) {
+        const p = document.createElement('div');
+        p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        p.className = 'bg-particle text-2xl sm:text-4xl';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (Math.random() * 10 + 10) + 's'; // 10s〜20sでゆっくり
+        p.style.animationDelay = '-' + (Math.random() * 20) + 's'; // 最初から画面全体に散らす
+        p.style.opacity = Math.random() * 0.4 + 0.1; // 薄めに
+        container.appendChild(p);
       }
+    }
+    
+    // --- わちゃわちゃ演出：クリックエフェクト ---
+    document.addEventListener('click', (e) => {
+      const emoji = document.createElement('div');
+      emoji.innerText = '✨';
+      emoji.className = 'fixed text-2xl pointer-events-none z-[9999] transition-all duration-500 ease-out';
+      emoji.style.left = (e.clientX - 15) + 'px';
+      emoji.style.top = (e.clientY - 15) + 'px';
+      document.body.appendChild(emoji);
+      
+      requestAnimationFrame(() => {
+        emoji.style.transform = `translate(${(Math.random() - 0.5) * 100}px, ${(Math.random() - 1) * 100}px) scale(1.5) rotate(${Math.random() * 180}deg)`;
+        emoji.style.opacity = '0';
+      });
+      
+      setTimeout(() => emoji.remove(), 500);
+    });
+
+    // --- わちゃわちゃ演出：ド派手な連続紙吹雪 ---
+    function firePartyConfetti() {
+      if (typeof confetti !== 'function') return;
+      const duration = 2500;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        // 左から
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'] });
+        // 右から
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'] });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      }());
+    }
+
+    // パーティクル初期化
+    initBackgroundParticles();
+
+
+    // --- システム基本処理 ---
+    const safeStorage = {
+      get: (key) => { try { return localStorage.getItem(key); } catch (e) { return window['_safe_' + key] || null; } },
+      set: (key, val) => { try { localStorage.setItem(key, val); } catch (e) { window['_safe_' + key] = val; } }
     };
 
     let auth = null;
@@ -318,20 +413,14 @@
     }
 
     const state = {
-      user: null,
-      races: [],
-      selectedRaceId: '',
-      localHorses: [],
-      appApiKey: '',
-      unsubscribeFirestore: null
+      user: null, races: [], selectedRaceId: '', localHorses: [], appApiKey: '', unsubscribeFirestore: null
     };
 
     const appLogger = {
       logs: [],
       log: function(level, message, details = {}) {
         const time = new Date().toISOString();
-        const safeDetails = JSON.stringify(details);
-        this.logs.push({ time, level, message, details: safeDetails });
+        this.logs.push({ time, level, message, details: JSON.stringify(details) });
         console[level === 'error' ? 'error' : 'log'](`[${level.toUpperCase()}] ${message}`, details);
       },
       showModal: function(csvText) {
@@ -343,9 +432,7 @@
         const header = "Time,Level,Message,Details\n";
         const csvContent = this.logs.map(l => `"${l.time}","${l.level}","${l.message}","${l.details.replace(/"/g, '""')}"`).join("\n");
         const fullCsv = header + csvContent;
-
         this.showModal(fullCsv);
-
         try {
           const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
           const url = URL.createObjectURL(blob);
@@ -365,14 +452,9 @@
       login: (e) => {
         if (e) e.preventDefault();
         let key = document.getElementById('apiKeyInput').value.trim();
-        if (!key) {
-          showToast('APIキーを入力してください', 'error');
-          return;
-        }
-        
+        if (!key) { showToast('APIキーを入力してください', 'error'); return; }
         state.appApiKey = key;
         safeStorage.set('umakatsu_api_key', key);
-        
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         lucide.createIcons();
@@ -387,14 +469,9 @@
       },
 
       addHorse: () => {
-        if (!state.selectedRaceId) {
-          showToast("レースを選択してください", "error");
-          return;
-        }
+        if (!state.selectedRaceId) { showToast("レースを選択してください", "error"); return; }
         const newNumber = state.localHorses.length > 0 ? Math.max(...state.localHorses.map(h => h.number)) + 1 : 1;
-        const newHorse = { 
-          id: Date.now(), number: newNumber, name: `追加馬${newNumber}`, odds: 10.0, speed: 70, jockey: 5, condition: 3, suitability: 3 
-        };
+        const newHorse = { id: Date.now(), number: newNumber, name: `追加馬${newNumber}`, odds: 10.0, speed: 70, jockey: 5, condition: 3, suitability: 3 };
         state.localHorses.push(newHorse);
         saveToFirestore();
         renderUI();
@@ -410,7 +487,6 @@
         let value = element.value;
         if (field === 'name') value = String(value);
         else value = Number(value);
-
         state.localHorses = state.localHorses.map(h => h.id === id ? { ...h, [field]: value } : h);
         saveToFirestore();
         app.renderRankings(false);
@@ -427,7 +503,7 @@
         const btn = document.getElementById('aiBtn');
         btn.disabled = true;
         btn.classList.add('opacity-80');
-        btn.innerHTML = `<span class="horse-dash text-2xl mr-2">🐴💨</span> <span class="font-black text-yellow-300">猛ダッシュ調査中...</span>`;
+        btn.innerHTML = `<span class="horse-dash text-3xl mr-2 drop-shadow-md">🐴💨</span> <span class="font-black text-yellow-300">猛ダッシュ調査中...!!</span>`;
         lucide.createIcons();
 
         try {
@@ -448,8 +524,6 @@
               
               if (modelsRes.ok) {
                 const modelsData = await modelsRes.json();
-                
-                // フィルタ: PRO, Lite, Vision 等を除外
                 const candidateModels = modelsData.models.filter(m => 
                   m.supportedGenerationMethods.includes("generateContent") &&
                   m.name.toLowerCase().includes("gemini") &&
@@ -460,27 +534,23 @@
                 );
                 
                 if (candidateModels.length > 0) {
-                  // ソート: バージョン番号の数値を抽出して比較し、大きい方（最新）を優先
                   candidateModels.sort((a, b) => {
                     const getVer = name => parseFloat(name.match(/\d+\.\d+/) || [0]);
                     const vA = getVer(a.name);
                     const vB = getVer(b.name);
-                    
-                    if (vA !== vB) return vB - vA; // バージョン番号が高い順
-                    return a.name.length - b.name.length; // 短い名前を優先
+                    if (vA !== vB) return vB - vA;
+                    return a.name.length - b.name.length;
                   });
-                  
-                  // 使用するモデルの候補リストを作成（上から順に試す）
                   candidateModelsNames = candidateModels.map(m => m.name.split('/').pop());
                   appLogger.log('info', `自動取得したモデル候補リスト: ${candidateModelsNames.join(', ')}`);
                 } else {
                    appLogger.log('warn', '条件に合うモデルが見つからなかったため、標準モデルを候補にします。');
                 }
               } else {
-                 appLogger.log('error', `モデル一覧取得に失敗しました (Status: ${modelsRes.status})`);
+                 appLogger.log('error', `モデル一覧取得に失敗しました`);
               }
             } catch (e) {
-              appLogger.log('error', 'モデル一覧の取得通信中にエラーが発生しました', { error: e.message });
+              appLogger.log('error', 'モデル一覧取得通信エラー', { error: e.message });
             }
           }
 
@@ -508,13 +578,10 @@
           let success = false;
           let targetModel = "";
 
-          // --- 自己修復（フォールバック）機能付きの通信ループ ---
           for (let modelIdx = 0; modelIdx < candidateModelsNames.length; modelIdx++) {
             targetModel = candidateModelsNames[modelIdx];
             appLogger.log('info', `【試行モデル】: ${targetModel}`);
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
-            
-            // 各モデルにつき通信エラー時のリトライ設定
             const delays = [1000, 2000, 4000];
             
             for (let i = 0; i < delays.length; i++) {
@@ -533,39 +600,26 @@
                 if (res.ok) {
                   data = await res.json();
                   success = true;
-                  appLogger.log('info', `API通信成功 (${targetModel})`);
                   break;
                 } else {
                   appLogger.log('error', `API通信エラー`, { status: res.status });
-                  // 400, 404, 429 エラーの場合は、このモデルでのリトライは無駄なのでループを抜ける
-                  if (res.status === 400 || res.status === 404 || res.status === 429) {
-                     break; 
-                  }
+                  if (res.status === 400 || res.status === 404 || res.status === 429) break; 
                 }
               } catch (e) {
                 appLogger.log('error', `API例外`, { error: e.message });
               }
-              if (!success && i < delays.length - 1) {
-                await new Promise(r => setTimeout(r, delays[i]));
-              }
+              if (!success && i < delays.length - 1) await new Promise(r => setTimeout(r, delays[i]));
             }
-            
-            if (success) {
-                break; // 通信成功した場合はモデル探索ループを抜ける
-            } else {
-                appLogger.log('warn', `${targetModel} での通信に失敗しました。次の候補モデルへフォールバック(自己修復)します。`);
-            }
+            if (success) break;
+            else appLogger.log('warn', `${targetModel} での通信に失敗。フォールバックします。`);
           }
 
-          if (!success || !data) {
-             throw new Error("利用可能なすべてのモデルで調査に失敗しました。利用制限に達している可能性があります。");
-          }
+          if (!success || !data) throw new Error("利用可能なすべてのモデルで調査に失敗しました。");
 
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          appLogger.log('info', 'AIテキスト取得');
           
           if (text) {
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></i> 保存中...`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 mr-2 animate-spin"></i> 保存中...`;
             lucide.createIcons();
             
             const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -595,7 +649,7 @@
               if (lastId) {
                 app.changeRace(lastId);
                 showToast(`詳細なレース調査が完了しました！（使用AI: ${targetModel}）`, "success");
-                if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                firePartyConfetti(); // ド派手紙吹雪
               }
             }
           }
@@ -606,7 +660,7 @@
         } finally {
           btn.disabled = false;
           btn.classList.remove('opacity-80');
-          btn.innerHTML = `<i data-lucide="bot" class="w-5 h-5 mr-2"></i> アナリストAIに精密調査を依頼`;
+          btn.innerHTML = `<i data-lucide="bot" id="aiBtnIcon" class="w-6 h-6 mr-2"></i> <span id="aiBtnText">アナリストAIに精密調査を依頼する 🚀</span>`;
           lucide.createIcons();
         }
       }
@@ -708,7 +762,7 @@
 
     function renderSelect() {
       const select = document.getElementById('raceSelect');
-      select.innerHTML = '<option value="" disabled ' + (!state.selectedRaceId ? 'selected' : '') + '>👉 レースを選択 / AIに探してもらう</option>';
+      select.innerHTML = '<option value="" disabled ' + (!state.selectedRaceId ? 'selected' : '') + '>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>';
       state.races.forEach(r => {
         const isSelected = r.raceId === state.selectedRaceId ? 'selected' : '';
         const dateStr = r.date ? `${r.date} ` : '';
@@ -719,7 +773,7 @@
     function renderUI() {
       const currentRaceInfo = state.races.find(r => r.raceId === state.selectedRaceId);
       
-      document.getElementById('raceTitle').innerHTML = `<i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-500"></i> ${currentRaceInfo ? currentRaceInfo.raceName : 'データ入力'}`;
+      document.getElementById('raceTitle').innerHTML = `<i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-600"></i> データ入力ステーション`;
       
       if (currentRaceInfo) {
         document.getElementById('raceSubtitle').classList.remove('hidden');
@@ -736,28 +790,27 @@
       listDiv.innerHTML = '';
       
       state.localHorses.forEach(horse => {
-        // 各行に hover-hop クラスを追加、入力欄に fun-input を追加
         listDiv.innerHTML += `
-          <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 sm:p-2.5 rounded-2xl border border-orange-50 shadow-sm hover:shadow-md hover-hop transition-all">
+          <div class="grid grid-cols-12 gap-2 items-center bg-white/90 p-2 sm:p-2.5 rounded-2xl border-2 border-orange-100 shadow-sm hover:shadow-md hover-hop transition-all">
             <div class="col-span-1 flex justify-center">
-              <input type="number" value="${horse.number}" onchange="app.updateHorse(${horse.id}, 'number', this)" class="fun-input w-10 h-10 text-center font-black text-base rounded-xl border border-gray-200 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 ${getNumberColor(horse.number)}" />
+              <input type="number" value="${horse.number}" onchange="app.updateHorse(${horse.id}, 'number', this)" class="fun-input w-10 h-10 text-center font-black text-base rounded-xl border border-gray-200 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 ${getNumberColor(horse.number)}" />
             </div>
             <div class="col-span-3">
-              <input type="text" value="${horse.name}" onchange="app.updateHorse(${horse.id}, 'name', this)" class="fun-input w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" />
+              <input type="text" value="${horse.name}" onchange="app.updateHorse(${horse.id}, 'name', this)" class="fun-input w-full bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" />
             </div>
             <div class="col-span-2 flex justify-center">
-              <input type="number" step="0.1" value="${horse.odds}" onchange="app.updateHorse(${horse.id}, 'odds', this)" class="fun-input w-full max-w-[5rem] bg-yellow-50 border border-yellow-200 rounded-xl px-2 py-2 text-right text-orange-600 font-black text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
+              <input type="number" step="0.1" value="${horse.odds}" onchange="app.updateHorse(${horse.id}, 'odds', this)" class="fun-input w-full max-w-[5rem] bg-yellow-100 border border-yellow-300 rounded-xl px-2 py-2 text-right text-orange-700 font-black text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200" />
             </div>
             <div class="col-span-2 flex justify-center">
-              <input type="number" value="${horse.speed}" onchange="app.updateHorse(${horse.id}, 'speed', this)" class="fun-input w-full max-w-[4rem] bg-gray-50 border border-gray-200 rounded-xl px-1 py-2 text-center font-bold text-sm text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" />
+              <input type="number" value="${horse.speed}" onchange="app.updateHorse(${horse.id}, 'speed', this)" class="fun-input w-full max-w-[4rem] bg-orange-50 border border-orange-100 rounded-xl px-1 py-2 text-center font-bold text-sm text-gray-700 outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" />
             </div>
             <div class="col-span-3 flex justify-center gap-1.5">
-                <input type="number" max="10" min="1" value="${horse.jockey}" onchange="app.updateHorse(${horse.id}, 'jockey', this)" class="fun-input w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" title="騎手" />
-                <input type="number" max="5" min="1" value="${horse.condition}" onchange="app.updateHorse(${horse.id}, 'condition', this)" class="fun-input w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" title="調子" />
-                <input type="number" max="5" min="1" value="${horse.suitability}" onchange="app.updateHorse(${horse.id}, 'suitability', this)" class="fun-input w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" title="適性" />
+                <input type="number" max="10" min="1" value="${horse.jockey}" onchange="app.updateHorse(${horse.id}, 'jockey', this)" class="fun-input w-9 h-9 bg-orange-50 border border-orange-100 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" title="騎手" />
+                <input type="number" max="5" min="1" value="${horse.condition}" onchange="app.updateHorse(${horse.id}, 'condition', this)" class="fun-input w-9 h-9 bg-orange-50 border border-orange-100 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" title="調子" />
+                <input type="number" max="5" min="1" value="${horse.suitability}" onchange="app.updateHorse(${horse.id}, 'suitability', this)" class="fun-input w-9 h-9 bg-orange-50 border border-orange-100 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" title="適性" />
             </div>
             <div class="col-span-1 flex justify-center">
-              <button onclick="app.removeHorse(${horse.id})" class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl active:scale-90 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+              <button onclick="app.removeHorse(${horse.id})" class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-100 rounded-xl active:scale-90 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
             </div>
           </div>
         `;
@@ -791,10 +844,10 @@
         const expectedValue = predictedProb * Number(horse.odds);
 
         let evaluation = { label: 'C', word: '見送り', style: 'bg-gray-200 text-gray-600 border-gray-300' };
-        if (expectedValue >= 1.5) evaluation = { label: 'SS', word: '超大当たり!', style: 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-transparent' };
-        else if (expectedValue >= 1.2) evaluation = { label: 'S', word: '大チャンス', style: 'bg-gradient-to-r from-orange-400 to-orange-500 text-white border-transparent' };
-        else if (expectedValue >= 1.0) evaluation = { label: 'A', word: 'イイね!', style: 'bg-yellow-100 text-yellow-800 border-yellow-300' };
-        else if (expectedValue >= 0.8) evaluation = { label: 'B', word: 'おさえ', style: 'bg-blue-50 text-blue-700 border-blue-200' };
+        if (expectedValue >= 1.5) evaluation = { label: 'SS', word: '超大当たり!', style: 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-transparent shadow-[0_0_10px_rgba(236,72,153,0.8)]' };
+        else if (expectedValue >= 1.2) evaluation = { label: 'S', word: '大チャンス', style: 'bg-gradient-to-r from-orange-400 to-orange-500 text-white border-transparent shadow-[0_0_8px_rgba(249,115,22,0.8)]' };
+        else if (expectedValue >= 1.0) evaluation = { label: 'A', word: 'イイね!', style: 'bg-yellow-300 text-orange-900 border-yellow-400 font-black' };
+        else if (expectedValue >= 0.8) evaluation = { label: 'B', word: 'おさえ', style: 'bg-blue-100 text-blue-700 border-blue-300' };
 
         return {
           ...horse,
@@ -805,13 +858,13 @@
         };
       }).sort((a, b) => b.expectedValue - a.expectedValue);
 
-      if (playEffect && analyzed.length > 0 && analyzed[0].expectedValue >= 1.2 && typeof confetti === 'function') {
-         confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+      if (playEffect && analyzed.length > 0 && analyzed[0].expectedValue >= 1.2) {
+         firePartyConfetti();
       }
 
       analyzed.forEach((horse, index) => {
         const width = Math.min(horse.expectedValue * 100 / 2.0, 100);
-        const barColor = horse.expectedValue >= 1.5 ? 'bg-pink-500' : horse.expectedValue >= 1.2 ? 'bg-orange-500' : horse.expectedValue >= 1.0 ? 'bg-yellow-400' : 'bg-gray-300';
+        const barColor = horse.expectedValue >= 1.5 ? 'bg-gradient-to-r from-pink-400 to-rose-500' : horse.expectedValue >= 1.2 ? 'bg-gradient-to-r from-orange-400 to-orange-500' : horse.expectedValue >= 1.0 ? 'bg-gradient-to-r from-yellow-300 to-yellow-400' : 'bg-gray-300';
         const fireIcon = horse.expectedValue >= 1.0 ? '🔥 ' : '';
         const numColor = getNumberColor(horse.number);
         
@@ -820,44 +873,44 @@
         let extraNameDecor = '';
         
         if (index === 0) {
-            rankIcon = '<i data-lucide="crown" class="w-4 h-4 text-yellow-500 absolute -top-1 -left-1 drop-shadow-md z-10 animate-bounce"></i>';
+            rankIcon = '<i data-lucide="crown" class="w-6 h-6 text-yellow-500 absolute -top-2 -left-2 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] z-20 animate-bounce"></i>';
             if(horse.expectedValue >= 1.2) {
-                extraCardClass = 'gold-pulse'; 
+                extraCardClass = 'gold-pulse scale-[1.02] z-10'; 
                 extraNameDecor = '✨';
             }
-        } else if (index === 1) rankIcon = '<i data-lucide="crown" class="w-4 h-4 text-gray-400 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
-        else if (index === 2) rankIcon = '<i data-lucide="crown" class="w-4 h-4 text-orange-700 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
+        } else if (index === 1) rankIcon = '<i data-lucide="crown" class="w-5 h-5 text-gray-400 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
+        else if (index === 2) rankIcon = '<i data-lucide="crown" class="w-5 h-5 text-orange-700 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
 
         rankingList.innerHTML += `
-          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-visible ${extraCardClass}">
+          <div class="bg-white rounded-3xl border-2 border-pink-100 p-4 shadow-md hover:shadow-lg transition-all relative overflow-visible ${extraCardClass}">
             <div class="flex justify-between items-center mb-3">
               <div class="flex items-center gap-3 relative z-10">
                 <div class="relative">
                   ${rankIcon}
-                  <div class="w-8 h-8 flex items-center justify-center rounded-xl border font-black text-sm shadow-sm ${numColor}">${horse.number}</div>
+                  <div class="w-10 h-10 flex items-center justify-center rounded-xl border-2 font-black text-lg shadow-sm ${numColor}">${horse.number}</div>
                 </div>
-                <span class="font-black text-gray-800 text-base sm:text-lg tracking-tight">${extraNameDecor}${horse.name}${extraNameDecor}</span>
+                <span class="font-black text-gray-900 text-lg sm:text-xl tracking-tight drop-shadow-sm">${extraNameDecor}${horse.name}${extraNameDecor}</span>
               </div>
-              <span class="text-xs sm:text-sm font-black px-3 py-1.5 rounded-full border ${horse.evaluation.style} shadow-sm relative z-10">${horse.evaluation.word}</span>
+              <span class="text-xs sm:text-sm font-black px-4 py-2 rounded-full border ${horse.evaluation.style} relative z-10 tracking-wider">${horse.evaluation.word}</span>
             </div>
 
-            <div class="mb-3 bg-white/60 p-3 rounded-xl border border-gray-100 relative z-10 backdrop-blur-sm mt-5">
-              <div class="flex justify-between text-xs sm:text-sm font-bold mb-1.5">
-                <span class="text-gray-500">期待値</span>
-                <span class="${horse.expectedValue >= 1.0 ? 'text-orange-600 font-black' : 'text-gray-500'}">${fireIcon}${horse.expectedValue}</span>
+            <div class="mb-3 bg-gradient-to-r from-gray-50 to-white p-3 rounded-2xl border border-gray-100 relative z-10 backdrop-blur-sm mt-5 shadow-inner">
+              <div class="flex justify-between text-xs sm:text-sm font-black mb-1.5">
+                <span class="text-gray-500">期待値メーター</span>
+                <span class="${horse.expectedValue >= 1.0 ? 'text-pink-600 text-base drop-shadow-md' : 'text-gray-500'}">${fireIcon}${horse.expectedValue}</span>
               </div>
               <!-- バーの上に馬が走る演出 -->
-              <div class="h-2.5 w-full bg-gray-200 rounded-full overflow-visible relative mt-4">
+              <div class="h-3 w-full bg-gray-200 rounded-full overflow-visible relative mt-4 shadow-inner">
                 <div class="racing-horse z-20" style="left: ${width}%">🏇</div>
-                <div class="absolute top-0 bottom-0 w-0.5 bg-gray-800 z-10" style="left: 50%"></div>
-                <div class="h-full ${barColor} rounded-full transition-all duration-1000 ease-out relative z-0" style="width: ${width}%"></div>
+                <div class="absolute top-0 bottom-0 w-1 bg-red-500 z-10 shadow-[0_0_5px_red]" style="left: 50%"></div>
+                <div class="h-full ${barColor} rounded-full transition-all duration-1000 ease-out relative z-0 shadow-md" style="width: ${width}%"></div>
               </div>
             </div>
 
-            <div class="flex justify-between text-center text-xs sm:text-sm pt-1 px-1 relative z-10">
-              <div><p class="text-gray-400 mb-0.5 text-[10px] sm:text-xs">AI勝率</p><p class="font-black text-blue-600">${horse.predictedProb}%</p></div>
-              <div><p class="text-gray-400 mb-0.5 text-[10px] sm:text-xs">みんなの勝率</p><p class="font-bold text-gray-500">${horse.impliedProb}%</p></div>
-              <div><p class="text-gray-400 mb-0.5 text-[10px] sm:text-xs">オッズ</p><p class="font-black text-orange-600">${horse.odds}倍</p></div>
+            <div class="flex justify-between text-center text-xs sm:text-sm pt-2 px-2 relative z-10 bg-gray-50/50 rounded-xl py-2">
+              <div><p class="text-gray-500 mb-1 text-[10px] sm:text-xs font-bold">AI勝率</p><p class="font-black text-blue-600 text-base drop-shadow-sm">${horse.predictedProb}%</p></div>
+              <div><p class="text-gray-500 mb-1 text-[10px] sm:text-xs font-bold">みんなの勝率</p><p class="font-black text-gray-600 text-base">${horse.impliedProb}%</p></div>
+              <div><p class="text-gray-500 mb-1 text-[10px] sm:text-xs font-bold">オッズ</p><p class="font-black text-orange-600 text-base drop-shadow-sm">${horse.odds}倍</p></div>
             </div>
           </div>
         `;

@@ -32,26 +32,21 @@
   <!-- ライブラリ読み込み -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- お祭り演出用の紙吹雪ライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
-    /* スクロールバー最適化 */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 237, 213, 0.3); border-radius: 10px; margin: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(251, 146, 60, 0.4); border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.8); }
     
-    /* 入力欄の矢印消去 */
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
 
-    /* トーストアニメーション */
     @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     .toast-anim { animation: slideDown 0.3s ease-out forwards; }
 
-    /* --- お祭り演出アニメーション --- */
     @keyframes horseDash {
       0% { transform: translateX(-3px) skewX(0deg); }
       50% { transform: translateX(3px) skewX(-15deg); }
@@ -78,7 +73,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <!-- エラーログ表示モーダル (ダウンロード失敗時のフォールバック) -->
+  <!-- エラーログ表示モーダル -->
   <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col">
       <h3 class="font-black text-red-600 mb-2 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> エラーログ</h3>
@@ -242,15 +237,14 @@
     // 実行環境提供のAPIキー
     const apiKey = ""; 
 
-    // --- 要求履歴・実装履歴の自己チェック機能 ---
+    // --- 📋 要求履歴・実装履歴の自己チェック機能 ---
     const appHistory = [
       { date: "2026-06-20", detail: "APIキー入力とdemoキー対応の実装" },
       { date: "2026-06-20", detail: "エラー時のCSVログ出力機能の追加" },
-      { date: "2026-06-20", detail: "APIキーのLocalStorage自動保存" },
-      { date: "2026-06-20", detail: "スマホ向けUI（タップ領域、スクロール、デザイン）最適化" },
-      { date: "2026-06-20", detail: "お祭り演出（馬のダッシュ、黄金脈動、紙吹雪）の実装" },
-      { date: "2026-06-21", detail: "プレビューのiframe制限によるStorageエラーとCSV保存エラーの回避" },
-      { date: "2026-06-21", detail: "アプリ内に実装履歴を記録し、自己チェックする機能の追加" }
+      { date: "2026-06-20", detail: "スマホ向けUI最適化・お祭り演出" },
+      { date: "2026-06-21", detail: "プレビューのiframe制限によるStorage/CSV保存エラーの回避" },
+      { date: "2026-06-21", detail: "APIキーの種類によって使用するAIモデルを自動切り替え（404エラー対策）" },
+      { date: "2026-06-21", detail: "APIからモデル一覧を自動取得し、PROを除外した中で最適なモデルを自動選択する機能を実装" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -314,7 +308,6 @@
         const csvContent = this.logs.map(l => `"${l.time}","${l.level}","${l.message}","${l.details.replace(/"/g, '""')}"`).join("\n");
         const fullCsv = header + csvContent;
 
-        // まず画面上に表示（iframe制限等でダウンロード失敗した場合の保険）
         this.showModal(fullCsv);
 
         try {
@@ -404,6 +397,58 @@
 
         try {
           appLogger.log('info', 'AI調査処理を開始しました');
+          
+          let requestKey = state.appApiKey;
+          let targetModel = "gemini-2.5-flash"; // デフォルトのフォールバック
+          
+          // プレビュー環境の場合は固定モデルを使用
+          if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
+            requestKey = apiKey; 
+            targetModel = "gemini-2.5-flash-preview-09-2025";
+            appLogger.log('info', 'プレビュー環境の固定モデルを使用します。');
+          } else {
+            // 【機能追加】APIキーを利用して利用可能なモデルリストを自動取得し、最適なものを選択
+            appLogger.log('info', '利用可能なモデルリストを取得し、最適なモデルを選択します...');
+            try {
+              const modelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`;
+              const modelsRes = await fetch(modelsUrl);
+              
+              if (modelsRes.ok) {
+                const modelsData = await modelsRes.json();
+                
+                // フィルタリング: テキスト生成対応 & geminiを含む & 「PRO」を除外
+                const candidateModels = modelsData.models.filter(m => 
+                  m.supportedGenerationMethods.includes("generateContent") &&
+                  m.name.toLowerCase().includes("gemini") &&
+                  !m.name.toLowerCase().includes("pro")
+                );
+                
+                if (candidateModels.length > 0) {
+                  // ソート: Flashモデルを優先し、バージョン番号等で一番新しいものを上にする
+                  candidateModels.sort((a, b) => {
+                    const aIsFlash = a.name.includes("flash") ? 1 : 0;
+                    const bIsFlash = b.name.includes("flash") ? 1 : 0;
+                    if (aIsFlash !== bIsFlash) return bIsFlash - aIsFlash;
+                    // 文字列の逆順ソートでバージョン番号の新しいものを先頭へ
+                    return b.name.localeCompare(a.name);
+                  });
+                  
+                  // "models/gemini-..." のプレフィックスを削除
+                  targetModel = candidateModels[0].name.split('/').pop();
+                  appLogger.log('info', `自動選択された最適モデル: ${targetModel}`);
+                } else {
+                   appLogger.log('warn', '条件に合うモデルが見つからなかったため、標準のFlashモデルを使用します。');
+                }
+              } else {
+                 appLogger.log('error', `モデル一覧取得に失敗しました (Status: ${modelsRes.status})`);
+              }
+            } catch (e) {
+              appLogger.log('error', 'モデル一覧の取得通信中にエラーが発生しました', { error: e.message });
+            }
+          }
+
+          appLogger.log('info', `最終的に使用するモデル: ${targetModel}`);
+          
           const existingRaceNames = state.races.map(r => r.raceName).join(', ');
           const prompt = `
             あなたはプロの競馬データアナリストです。現在は2026年6月20日（土曜日）です。
@@ -423,10 +468,7 @@
             }
           `;
 
-          let requestKey = state.appApiKey;
-          if (requestKey === "demo") requestKey = apiKey;
-          
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${requestKey}`;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
           
           let res;
           let data;
@@ -434,7 +476,7 @@
           const delays = [1000, 2000, 4000, 8000, 16000];
 
           for (let i = 0; i < delays.length; i++) {
-            appLogger.log('info', `API通信実行 (試行 ${i+1})`);
+            appLogger.log('info', `コンテンツ生成API通信実行 (試行 ${i+1})`);
             try {
               res = await fetch(url, {
                 method: 'POST',
@@ -461,7 +503,7 @@
             }
           }
 
-          if (!success || !data) throw new Error("通信が規定回数失敗しました。");
+          if (!success || !data) throw new Error("通信が規定回数失敗しました。ログを確認してください。");
 
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           appLogger.log('info', 'AIテキスト取得');
@@ -718,7 +760,6 @@
         const fireIcon = horse.expectedValue >= 1.0 ? '🔥 ' : '';
         const numColor = getNumberColor(horse.number);
         
-        // 【演出】超大当たり馬の黄金脈動と王冠
         let rankIcon = '';
         let extraCardClass = '';
         let extraNameDecor = '';

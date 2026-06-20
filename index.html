@@ -12,22 +12,19 @@
   <!-- ブラウザタブ用のアイコン -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
-  <!-- iPhoneホーム画面用のアイコンを自動生成（iOSのSVG非対応対策） -->
+  <!-- iPhoneホーム画面用のアイコンを自動生成 -->
   <script>
     (function() {
       const canvas = document.createElement('canvas');
       canvas.width = 180;
       canvas.height = 180;
       const ctx = canvas.getContext('2d');
-      // 背景をオレンジに塗る
       ctx.fillStyle = '#f97316';
       ctx.fillRect(0, 0, 180, 180);
-      // 中央に馬の絵文字を描画
       ctx.font = '100px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('🐴', 90, 100);
-      // PNG画像としてアイコンに設定
       const link = document.createElement('link');
       link.rel = 'apple-touch-icon';
       link.href = canvas.toDataURL('image/png');
@@ -35,10 +32,8 @@
     })();
   </script>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -47,7 +42,6 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(251, 146, 60, 0.5); border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.8); }
     
-    /* 簡易トーストアニメーション */
     @keyframes slideDown {
       from { transform: translate(-50%, -100%); opacity: 0; }
       to { transform: translate(-50%, 0); opacity: 1; }
@@ -208,7 +202,9 @@
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // 環境変数 (Canvas環境から提供される前提。ない場合はLocalStorageにフォールバック)
+    // 実行環境からAPIキーが提供されるため、空文字を設定します
+    const apiKey = ""; 
+
     let auth = null;
     let db = null;
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -237,15 +233,18 @@
       unsubscribeFirestore: null
     };
 
-    // UI更新用のグローバルオブジェクト
     window.app = {
-      // ログイン処理
+      // ログイン処理を復活
       login: (e) => {
         e.preventDefault();
-        const key = document.getElementById('apiKeyInput').value.trim();
+        let key = document.getElementById('apiKeyInput').value.trim();
         if (!key) {
           showToast('APIキーを入力してください', 'error');
           return;
+        }
+        // プレビュー環境でのテスト用に "demo" と入力された場合は自動キーを利用
+        if (key === "demo") {
+          key = apiKey;
         }
         state.appApiKey = key;
         document.getElementById('loginScreen').classList.add('hidden');
@@ -256,7 +255,6 @@
         }
       },
 
-      // レースの切り替え
       changeRace: (raceId) => {
         state.selectedRaceId = raceId;
         const currentRace = state.races.find(r => r.raceId === raceId);
@@ -264,7 +262,6 @@
         renderUI();
       },
 
-      // 馬の追加
       addHorse: () => {
         if (!state.selectedRaceId) {
           showToast("レースを選択してください", "error");
@@ -279,14 +276,12 @@
         renderUI();
       },
 
-      // 馬の削除
       removeHorse: (id) => {
         state.localHorses = state.localHorses.filter(h => h.id !== id);
         saveToFirestore();
         renderUI();
       },
 
-      // 馬のデータ更新
       updateHorse: (id, field, element) => {
         let value = element.value;
         if (field === 'name') value = String(value);
@@ -294,10 +289,9 @@
 
         state.localHorses = state.localHorses.map(h => h.id === id ? { ...h, [field]: value } : h);
         saveToFirestore();
-        app.renderRankings(); // 値が変わった時だけランキングも再計算
+        app.renderRankings(); 
       },
 
-      // ランキングだけ再計算（ボタン用）
       renderRankings: () => {
         renderRankingPanel();
         lucide.createIcons();
@@ -305,7 +299,7 @@
 
       // AIリサーチ (Gemini API)
       researchAI: async () => {
-        if (!state.user || !state.appApiKey) return;
+        if (!state.user) return;
         
         const btnText = document.getElementById('aiBtnText');
         const btnIcon = document.getElementById('aiBtnIcon');
@@ -320,7 +314,6 @@
 
         try {
           const existingRaceNames = state.races.map(r => r.raceName).join(', ');
-          // Google検索と併用するため、プロンプト内でJSON形式を強制するように修正
           const prompt = `
             あなたはプロの競馬データアナリストです。現在は2026年6月20日（土曜日）です。
             今週末（2026年6月20日〜21日）に開催されるJRAの主要な重賞レースまたはメインレースについて、Google検索を用いて正確な出馬表を調査してください。
@@ -339,36 +332,55 @@
             }
           `;
 
+          // 入力されたAPIキーを使って通信するように変更
           const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${state.appApiKey}`;
           
           let res;
-          for (let i = 0; i < 3; i++) {
+          let data;
+          let success = false;
+          // 通信エラー時の自動リトライ設定 (1s, 2s, 4s, 8s, 16s)
+          const delays = [1000, 2000, 4000, 8000, 16000];
+
+          for (let i = 0; i < delays.length; i++) {
             try {
               res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
-                  tools: [{ google_search: {} }], // 検索ツールを利用
-                  // generationConfigのJSONモードは検索ツールと併用できないため削除
+                  tools: [{ google_search: {} }], 
                   systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONフォーマットのみを出力してください。その他の挨拶や解説文は一切不要です。" }]}
                 })
               });
-              if (res.ok) break;
+              if (res.ok) {
+                data = await res.json();
+                success = true;
+                break;
+              }
             } catch (e) {
-              if (i === 2) throw e;
-              await new Promise(r => setTimeout(r, 1500));
+              // エラー時は待機して再試行
+            }
+            if (!success && i < delays.length - 1) {
+              await new Promise(r => setTimeout(r, delays[i]));
             }
           }
 
-          const data = await res.json();
+          if (!success || !data) {
+             throw new Error("API通信エラー");
+          }
+
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           
           if (text) {
             btnText.innerText = '保存中...';
-            // Markdownのバッククォートが含まれている場合は除去してパースを安定させる
-            const cleanText = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-            const parsed = JSON.parse(cleanText);
+            
+            // 解析強化: 余計なテキストが混じっていてもJSON部分だけを抜き出す
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                throw new Error("解析可能なデータが見つかりませんでした");
+            }
+
+            const parsed = JSON.parse(jsonMatch[0]);
             
             if (parsed && parsed.races) {
               let lastId = state.selectedRaceId;
@@ -412,13 +424,14 @@
       }
     };
 
-    // --- 初期化とイベントリスナー設定 ---
+    // ログインフォームの送信イベントを登録
     document.getElementById('loginForm').addEventListener('submit', app.login);
 
+    // --- 初期化と認証 ---
     const initAuth = async () => {
       if (!auth) {
-        // Firebase環境がない場合はローカルで動かす
         state.user = { uid: 'local_user' };
+        startFirestoreSync();
         return;
       }
       try {
@@ -435,7 +448,7 @@
     if (auth) {
       onAuthStateChanged(auth, (user) => {
         state.user = user;
-        if (state.user && state.appApiKey) {
+        if (state.user) {
           startFirestoreSync();
         }
       });
@@ -444,10 +457,9 @@
     initAuth();
     lucide.createIcons();
 
-    // --- データ保存・同期 連携 ---
+    // --- データ保存・同期 ---
     function startFirestoreSync() {
       if (!db) {
-        // データベースがない（GitHub Pages等）場合は LocalStorage を使う
         const saved = localStorage.getItem('umakatsu_races');
         if (saved) {
           state.races = JSON.parse(saved);
@@ -470,7 +482,6 @@
         raceData.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
         state.races = raceData;
         
-        // 選択中のレースのローカルデータも更新
         if (state.selectedRaceId) {
           const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
           if (currentRace) state.localHorses = currentRace.horses || [];
@@ -493,7 +504,6 @@
           showToast("保存エラー", "error");
         }
       } else {
-        // LocalStorageに保存
         const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
         if (raceIdx >= 0) {
           state.races[raceIdx].horses = state.localHorses;
@@ -524,7 +534,6 @@
     function renderUI() {
       const currentRaceInfo = state.races.find(r => r.raceId === state.selectedRaceId);
       
-      // レースタイトル表示
       document.getElementById('raceTitle').innerHTML = `<i data-lucide="flag" class="w-5 h-5 mr-1 text-orange-500"></i> ${currentRaceInfo ? currentRaceInfo.raceName : 'データ入力'}`;
       
       if (currentRaceInfo) {
@@ -538,7 +547,6 @@
         document.getElementById('horseTableContainer').classList.add('hidden');
       }
 
-      // 馬のテーブル描画
       const listDiv = document.getElementById('horseList');
       listDiv.innerHTML = '';
       
@@ -585,7 +593,6 @@
       }
       emptyMsg.classList.add('hidden');
 
-      // 期待値の計算
       const scoredHorses = state.localHorses.map(horse => {
         const rawScore = (Number(horse.speed) * 0.5) + (Number(horse.jockey) * 10 * 0.2) + (Number(horse.condition) * 20 * 0.15) + (Number(horse.suitability) * 20 * 0.15);
         return { ...horse, rawScore, weight: Math.pow(rawScore, 3) };

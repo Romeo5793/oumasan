@@ -98,7 +98,10 @@
   <div id="mainApp" class="hidden max-w-6xl mx-auto space-y-4 p-2 sm:p-4">
     
     <!-- ナビゲーション -->
-    <div class="flex justify-end gap-2 px-1">
+    <div class="flex justify-end gap-2 px-1 mb-2">
+      <button onclick="app.resetApiKey()" class="flex items-center gap-1 px-3 py-1 bg-white text-gray-500 text-xs font-bold rounded-full border border-gray-200 hover:bg-gray-50 transition-colors">
+        <i data-lucide="key" class="w-3.5 h-3.5"></i> APIキー変更
+      </button>
       <button onclick="window.open('https://www.jra.go.jp/kouyu/app/', '_blank')" class="flex items-center gap-1 px-3 py-1 bg-white text-green-700 text-xs font-bold rounded-full border border-green-200 hover:bg-green-50 transition-colors">
         <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> アプリ
       </button>
@@ -233,7 +236,7 @@
       races: [],
       selectedRaceId: '',
       localHorses: [],
-      appApiKey: '',
+      appApiKey: localStorage.getItem('umakatsu_api_key') || '',
       unsubscribeFirestore: null
     };
 
@@ -241,19 +244,29 @@
     window.app = {
       // ログイン処理
       login: (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         const key = document.getElementById('apiKeyInput').value.trim();
         if (!key) {
           showToast('APIキーを入力してください', 'error');
           return;
         }
         state.appApiKey = key;
+        localStorage.setItem('umakatsu_api_key', key);
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         lucide.createIcons();
         if (state.user) {
           startFirestoreSync();
         }
+      },
+
+      // APIキーの再設定
+      resetApiKey: () => {
+        localStorage.removeItem('umakatsu_api_key');
+        state.appApiKey = '';
+        document.getElementById('apiKeyInput').value = '';
+        document.getElementById('mainApp').classList.add('hidden');
+        document.getElementById('loginScreen').classList.remove('hidden');
       },
 
       // レースの切り替え
@@ -415,6 +428,12 @@
 
     // --- 初期化とイベントリスナー設定 ---
     document.getElementById('loginForm').addEventListener('submit', app.login);
+
+    // 保存されたAPIキーがあれば自動でメイン画面を表示
+    if (state.appApiKey) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+    }
 
     const initAuth = async () => {
       if (!auth) {

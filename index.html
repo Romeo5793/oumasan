@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ウマ勝AI">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
+  <!-- iPhoneホーム画面用のアイコンを自動生成 -->
   <script>
     (function() {
       const canvas = document.createElement('canvas');
@@ -47,7 +47,7 @@
 </head>
 <body class="bg-[#FFFBF0] text-gray-800 font-sans min-h-screen">
 
-  <div id="toast" class="hidden fixed top-4 left-1/2 z-50 flex items-center px-4 py-2 rounded shadow-md font-bold text-sm toast-anim">
+  <div id="toast" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex items-center px-4 py-2 rounded shadow-md font-bold text-sm toast-anim">
     <span id="toastMsg"></span>
   </div>
 
@@ -117,8 +117,8 @@
         </select>
       </div>
       <button id="aiBtn" onclick="app.researchAI()" class="w-full md:w-auto flex justify-center items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">
-        <i data-lucide="bot" class="w-4 h-4 mr-2"></i> 
-        <span>アナリストAIに精密調査を依頼</span>
+        <i data-lucide="bot" id="aiBtnIcon" class="w-4 h-4 mr-2"></i> 
+        <span id="aiBtnText">アナリストAIに精密調査を依頼</span>
       </button>
     </div>
 
@@ -176,7 +176,7 @@
             <h2 class="text-lg font-black text-white flex items-center"><i data-lucide="target" class="w-5 h-5 mr-1"></i> お宝ランキング</h2>
           </div>
           
-          <div id="rankingContainer" class="p-3 space-y-3 bg-orange-50/20">
+          <div id="rankingContainer" class="p-3 space-y-3 bg-orange-50/20 h-full">
              <div id="emptyRankingMsg" class="flex flex-col items-center justify-center py-10 text-orange-300">
               <i data-lucide="target" class="w-10 h-10 mb-2"></i>
               <p class="font-bold">データを入れてね！</p>
@@ -211,6 +211,7 @@
         }
     }
 
+    // HTMLから直接呼べるようにwindowオブジェクトに登録
     window.downloadLogsCSV = function() {
         let csv = '\uFEFF'; 
         csv += '"Time","Level","Message","Details"\n'; 
@@ -265,6 +266,7 @@
       addLog("WARN", "Firebase not configured. Using LocalStorage.", e.message);
     }
 
+    // 状態管理
     const state = {
       user: null,
       races: [],
@@ -274,6 +276,7 @@
       unsubscribeFirestore: null
     };
 
+    // UI更新用のグローバルオブジェクト
     window.app = {
       login: (e) => {
         if (e) e.preventDefault();
@@ -288,7 +291,7 @@
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         lucide.createIcons();
-        if (state.user) {
+        if (state.user || !auth) {
           startFirestoreSync();
         }
       },
@@ -342,6 +345,7 @@
         lucide.createIcons();
       },
 
+      // 利用可能な最適なモデルを自動取得する関数
       getBestModel: async () => {
         if (!state.appApiKey) return 'gemini-1.5-flash';
 
@@ -353,6 +357,7 @@
           const data = await response.json();
           const availableModels = data.models.map(m => m.name.replace('models/', ''));
 
+          // Proモデルを避け、Flashモデルを優先する順位リスト
           const preferredModels = [
               'gemini-2.5-flash-preview-09-2025', 
               'gemini-2.5-flash',
@@ -382,24 +387,27 @@
         }
       },
 
+      // AIリサーチ
       researchAI: async () => {
-        if (!state.user || !state.appApiKey) return;
+        if (!state.appApiKey) return;
         
+        const btnText = document.getElementById('aiBtnText');
+        const btnIcon = document.getElementById('aiBtnIcon');
         const btn = document.getElementById('aiBtn');
         const errorContainer = document.getElementById('error-message');
         
         btn.disabled = true;
         btn.classList.add('opacity-50');
-        // 調査中の見た目に変更
-        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i><span>AIモデル選定と調査準備中...</span>`;
-        errorContainer.classList.add('hidden'); // 開始時にエラーを隠す
+        btnIcon.setAttribute('data-lucide', 'loader-2');
+        btnIcon.classList.add('animate-spin');
+        btnText.innerText = 'AIモデルの選定と調査準備中...';
+        errorContainer.classList.add('hidden');
         lucide.createIcons();
 
         try {
           addLog("INFO", "AIリサーチ処理を開始します");
           const bestModel = await app.getBestModel();
-          btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i><span>調査中...</span>`;
-          lucide.createIcons();
+          btnText.innerText = '調査中...';
 
           const existingRaceNames = state.races.map(r => r.raceName).join(', ');
           const prompt = `
@@ -423,8 +431,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
-                  // ★修正点：google_search -> googleSearch が正しいプロパティ名です
-                  tools: [{ googleSearch: {} }], 
+                  tools: [{ google_search: {} }],
                   systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONスキーマのみを出力してください。" }]},
                   generationConfig: { 
                     responseMimeType: "application/json",
@@ -442,6 +449,7 @@
                   }
                 })
               });
+              
               if (res.ok) {
                   addLog("INFO", "Gemini API リクエスト成功");
                   break;
@@ -461,8 +469,7 @@
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           
           if (text) {
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i><span>保存中...</span>`;
-            lucide.createIcons();
+            btnText.innerText = '保存中...';
             addLog("INFO", "JSONデータのパースと保存を開始");
             const parsed = JSON.parse(text);
             if (parsed && parsed.races) {
@@ -482,7 +489,7 @@
                 lastId = race.raceId;
               }
 
-              if (!db || state.user.uid === 'local_user') {
+              if (!db || (state.user && state.user.uid === 'local_user')) {
                 state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
                 localStorage.setItem('umakatsu_races', JSON.stringify(state.races));
                 addLog("INFO", "Local storage updated");
@@ -510,15 +517,17 @@
           `;
           errorContainer.classList.remove('hidden');
         } finally {
-          // ★修正点：エラー時でも必ず元のボタンの見た目に戻るように修正
           btn.disabled = false;
           btn.classList.remove('opacity-50');
-          btn.innerHTML = `<i data-lucide="bot" class="w-4 h-4 mr-2"></i><span>アナリストAIに精密調査を依頼</span>`;
+          btnIcon.setAttribute('data-lucide', 'bot');
+          btnIcon.classList.remove('animate-spin');
+          btnText.innerText = 'アナリストAIに精密調査を依頼';
           lucide.createIcons();
         }
       }
     };
 
+    // --- イベントリスナー設定 ---
     document.getElementById('loginForm').addEventListener('submit', app.login);
 
     if (state.appApiKey) {
@@ -556,7 +565,7 @@
     lucide.createIcons();
 
     function startFirestoreSync() {
-      if (!db || state.user.uid === 'local_user') {
+      if (!db || (state.user && state.user.uid === 'local_user')) {
         const saved = localStorage.getItem('umakatsu_races');
         if (saved) {
           state.races = JSON.parse(saved);

@@ -130,7 +130,6 @@
 
     <!-- ヘッダー -->
     <header class="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl p-3 sm:p-5 flex items-center justify-between shadow-sm relative overflow-hidden">
-      <!-- ヘッダー内の装飾 -->
       <div class="absolute -right-4 -top-4 opacity-20 text-6xl">🏇</div>
       <div class="flex items-center space-x-3 relative z-10">
         <div class="p-2 sm:p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 text-white shadow-sm">
@@ -242,7 +241,8 @@
       { date: "2026-06-20", detail: "スマホ向けUI最適化・お祭り演出" },
       { date: "2026-06-21", detail: "プレビューのiframe制限によるStorage/CSV保存エラーの回避" },
       { date: "2026-06-21", detail: "APIからモデル一覧を自動取得し、PROを除外した中で最適なモデルを自動選択" },
-      { date: "2026-06-21", detail: "Liteモデル（検索機能非対応）を候補から除外し、429エラーを回避する修正" }
+      { date: "2026-06-21", detail: "Liteモデル（検索機能非対応）を候補から除外し、429エラーを回避する修正" },
+      { date: "2026-06-21", detail: "最新モデルで制限エラー(429)が起きた場合、次点の候補モデルへ自動的に切り替えて再挑戦する自己修復機能を追加" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -393,11 +393,11 @@
           appLogger.log('info', 'AI調査処理を開始しました');
           
           let requestKey = state.appApiKey;
-          let targetModel = "gemini-2.5-flash"; 
+          let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
           
           if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
-            targetModel = "gemini-2.5-flash-preview-09-2025";
+            candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"];
             appLogger.log('info', 'プレビュー環境の固定モデルを使用します。');
           } else {
             appLogger.log('info', '利用可能なモデルリストを取得し、最適なモデルを選択します...');
@@ -408,32 +408,32 @@
               if (modelsRes.ok) {
                 const modelsData = await modelsRes.json();
                 
-                // フィルタ修正: PRO, Lite, Vision を除外
+                // フィルタ: PRO, Lite, Vision 等を除外
                 const candidateModels = modelsData.models.filter(m => 
                   m.supportedGenerationMethods.includes("generateContent") &&
                   m.name.toLowerCase().includes("gemini") &&
                   !m.name.toLowerCase().includes("pro") &&
                   !m.name.toLowerCase().includes("lite") &&
-                  !m.name.toLowerCase().includes("vision")
+                  !m.name.toLowerCase().includes("vision") &&
+                  !m.name.toLowerCase().includes("thinking")
                 );
                 
                 if (candidateModels.length > 0) {
-                  // ソート修正: バージョン番号の数値を抽出して比較し、大きい方（最新）を優先
+                  // ソート: バージョン番号の数値を抽出して比較し、大きい方（最新）を優先
                   candidateModels.sort((a, b) => {
                     const getVer = name => parseFloat(name.match(/\d+\.\d+/) || [0]);
                     const vA = getVer(a.name);
                     const vB = getVer(b.name);
                     
-                    if (vA !== vB) return vB - vA; // バージョン番号が高い順 (2.5 -> 2.0 -> 1.5)
-                    
-                    // バージョンが同じなら名前が短い（余計なサフィックスがない標準版）を優先
-                    return a.name.length - b.name.length;
+                    if (vA !== vB) return vB - vA; // バージョン番号が高い順
+                    return a.name.length - b.name.length; // 短い名前を優先
                   });
                   
-                  targetModel = candidateModels[0].name.split('/').pop();
-                  appLogger.log('info', `自動選択された最適モデル: ${targetModel}`);
+                  // 使用するモデルの候補リストを作成（上から順に試す）
+                  candidateModelsNames = candidateModels.map(m => m.name.split('/').pop());
+                  appLogger.log('info', `自動取得したモデル候補リスト: ${candidateModelsNames.join(', ')}`);
                 } else {
-                   appLogger.log('warn', '条件に合うモデルが見つからなかったため、標準のFlashモデルを使用します。');
+                   appLogger.log('warn', '条件に合うモデルが見つからなかったため、標準モデルを候補にします。');
                 }
               } else {
                  appLogger.log('error', `モデル一覧取得に失敗しました (Status: ${modelsRes.status})`);
@@ -443,8 +443,6 @@
             }
           }
 
-          appLogger.log('info', `最終的に使用するモデル: ${targetModel}`);
-          
           const existingRaceNames = state.races.map(r => r.raceName).join(', ');
           const prompt = `
             あなたはプロの競馬データアナリストです。現在は2026年6月20日（土曜日）です。
@@ -464,49 +462,62 @@
             }
           `;
 
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
-          
           let res;
           let data;
           let success = false;
-          let lastStatus = 200;
-          const delays = [1000, 2000, 4000, 8000, 16000];
+          let targetModel = "";
 
-          for (let i = 0; i < delays.length; i++) {
-            appLogger.log('info', `コンテンツ生成API通信実行 (試行 ${i+1})`);
-            try {
-              res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: prompt }] }],
-                  tools: [{ google_search: {} }], 
-                  systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONフォーマットのみを出力してください。その他の挨拶や解説文は一切不要です。" }]}
-                })
-              });
-              lastStatus = res.status;
-              if (res.ok) {
-                data = await res.json();
-                success = true;
-                appLogger.log('info', 'API通信成功');
-                break;
-              } else {
-                appLogger.log('error', `API通信エラー`, { status: res.status });
+          // --- 自己修復（フォールバック）機能付きの通信ループ ---
+          for (let modelIdx = 0; modelIdx < candidateModelsNames.length; modelIdx++) {
+            targetModel = candidateModelsNames[modelIdx];
+            appLogger.log('info', `【試行モデル】: ${targetModel}`);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
+            
+            // 各モデルにつき通信エラー時のリトライ設定
+            const delays = [1000, 2000, 4000];
+            
+            for (let i = 0; i < delays.length; i++) {
+              appLogger.log('info', `通信実行 (${targetModel} - 試行 ${i+1})`);
+              try {
+                res = await fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ google_search: {} }], 
+                    systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONフォーマットのみを出力してください。その他の挨拶や解説文は一切不要です。" }]}
+                  })
+                });
+                
+                if (res.ok) {
+                  data = await res.json();
+                  success = true;
+                  appLogger.log('info', `API通信成功 (${targetModel})`);
+                  break;
+                } else {
+                  appLogger.log('error', `API通信エラー`, { status: res.status });
+                  // 400, 404, 429 エラーの場合は、このモデルでのリトライは無駄なのでループを抜ける
+                  if (res.status === 400 || res.status === 404 || res.status === 429) {
+                     break; 
+                  }
+                }
+              } catch (e) {
+                appLogger.log('error', `API例外`, { error: e.message });
               }
-            } catch (e) {
-              appLogger.log('error', `API例外`, { error: e.message });
+              if (!success && i < delays.length - 1) {
+                await new Promise(r => setTimeout(r, delays[i]));
+              }
             }
-            if (!success && i < delays.length - 1) {
-              await new Promise(r => setTimeout(r, delays[i]));
+            
+            if (success) {
+                break; // 通信成功した場合はモデル探索ループを抜ける
+            } else {
+                appLogger.log('warn', `${targetModel} での通信に失敗しました。次の候補モデルへフォールバック(自己修復)します。`);
             }
           }
 
           if (!success || !data) {
-             let errorMsg = "通信が規定回数失敗しました。";
-             if (lastStatus === 429) {
-                 errorMsg = "APIの利用制限(429エラー)です。モデルが検索機能に対応していないか、短時間のリクエスト制限に達しました。";
-             }
-             throw new Error(errorMsg);
+             throw new Error("利用可能なすべてのモデルで調査に失敗しました。利用制限に達している可能性があります。");
           }
 
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -542,14 +553,14 @@
 
               if (lastId) {
                 app.changeRace(lastId);
-                showToast("詳細なレース調査が完了しました！", "success");
+                showToast(`詳細なレース調査が完了しました！（使用AI: ${targetModel}）`, "success");
                 if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
               }
             }
           }
         } catch (e) {
           appLogger.log('error', '致命的エラー', { errorMessage: e.message, stack: e.stack });
-          showToast(e.message.includes("429") ? "利用制限に達しました。しばらくお待ちください。" : "調査に失敗しました。エラーログを確認してください。", "error");
+          showToast(e.message, "error");
           appLogger.downloadCSV();
         } finally {
           btn.disabled = false;

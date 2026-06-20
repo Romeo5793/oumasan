@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ハッピー予想AI</title>
+  <title>ハッピー予想AI V2</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ウマ勝AI">
+  <meta name="apple-mobile-web-app-title" content="ウマ勝AI V2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -47,6 +47,7 @@
     @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     .toast-anim { animation: slideDown 0.3s ease-out forwards; }
 
+    /* --- お祭り感アニメーション V2 --- */
     @keyframes horseDash {
       0% { transform: translateX(-3px) skewX(0deg); }
       50% { transform: translateX(3px) skewX(-15deg); }
@@ -64,9 +65,35 @@
       background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
       border-width: 2px;
     }
+
+    /* 入力欄のポヨンとした楽しい動き */
+    .fun-input { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .fun-input:focus {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+      z-index: 10;
+    }
+    
+    /* リスト行ホバー時の軽いジャンプ */
+    @keyframes hop {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .hover-hop:hover { animation: hop 0.4s ease; }
+
+    /* ランキングバーの上を走る馬 */
+    .racing-horse {
+      position: absolute;
+      top: -22px;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+    }
   </style>
 </head>
-<body class="bg-[#F8F9FA] text-gray-800 font-sans min-h-screen pb-10">
+<!-- 背景を楽しいドット柄に変更 -->
+<body class="bg-[#FFFBF0] text-gray-800 font-sans min-h-screen pb-10 relative" style="background-image: radial-gradient(#fed7aa 1.5px, transparent 1.5px); background-size: 24px 24px;">
 
   <!-- トースト通知 -->
   <div id="toast" class="hidden fixed top-4 left-1/2 z-50 flex items-center px-5 py-3 rounded-2xl shadow-lg font-bold text-sm toast-anim">
@@ -84,16 +111,19 @@
   </div>
 
   <!-- ログイン画面 -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-lg max-w-md w-full border border-gray-100">
-      <div class="flex justify-center mb-6">
-        <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100 shadow-sm relative">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl max-w-md w-full border-2 border-orange-100">
+      <div class="flex justify-center mb-6 relative">
+        <div class="p-4 bg-orange-50 rounded-2xl border border-orange-200 shadow-inner relative z-10">
           <i data-lucide="bot" class="w-12 h-12 text-orange-500"></i>
-          <span class="absolute -top-2 -right-2 text-xl">🎉</span>
         </div>
+        <!-- 周りのお祭り装飾 -->
+        <span class="absolute top-0 right-10 text-2xl animate-bounce" style="animation-delay: 0.1s">🎉</span>
+        <span class="absolute top-4 left-10 text-2xl animate-bounce" style="animation-delay: 0.3s">🥕</span>
+        <span class="absolute -bottom-2 right-12 text-2xl animate-bounce" style="animation-delay: 0.5s">🐴</span>
       </div>
-      <h1 class="text-2xl font-black text-center text-gray-800 mb-1">ハッピー予想AI</h1>
-      <p class="text-center text-xs font-bold text-orange-500 mb-8">AIアナリストを起動してください</p>
+      <h1 class="text-2xl font-black text-center text-gray-800 mb-1">ハッピー予想AI <span class="text-orange-500 font-black text-xl ml-1">V2</span></h1>
+      <p class="text-center text-xs font-bold text-orange-500 mb-8 bg-orange-50 py-1 px-3 rounded-full inline-block mx-auto block w-fit">お祭りUI追加版！</p>
       
       <form id="loginForm" class="space-y-5">
         <div>
@@ -101,23 +131,23 @@
           <input 
             type="password" 
             id="apiKeyInput"
-            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-50 transition-all"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-50 transition-all fun-input"
             placeholder="Gemini API Key (テストは 'demo')"
             required
           />
         </div>
         <button 
           type="submit"
-          class="w-full flex justify-center items-center px-6 py-4 bg-gray-900 hover:bg-black text-white font-black rounded-xl shadow-md active:scale-95 transition-all"
+          class="w-full flex justify-center items-center px-6 py-4 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-black hover:to-gray-900 text-white font-black rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all"
         >
-          アプリを起動する
+          アプリを起動する 🚀
         </button>
       </form>
     </div>
   </div>
 
   <!-- メインアプリ画面 -->
-  <div id="mainApp" class="hidden max-w-6xl mx-auto space-y-3 p-3 sm:p-4">
+  <div id="mainApp" class="hidden max-w-6xl mx-auto space-y-4 p-3 sm:p-4 relative z-10">
     <!-- ナビゲーション -->
     <div class="flex justify-end gap-2 px-1">
       <button onclick="window.open('https://www.jra.go.jp/kouyu/app/', '_blank')" class="flex items-center gap-1.5 px-3 py-1.5 bg-white text-green-700 text-xs font-bold rounded-full border border-green-200 hover:bg-green-50 shadow-sm active:scale-95 transition-all">
@@ -129,46 +159,56 @@
     </div>
 
     <!-- ヘッダー -->
-    <header class="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl p-3 sm:p-5 flex items-center justify-between shadow-sm relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 opacity-20 text-6xl">🏇</div>
+    <header class="bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 rounded-3xl p-3 sm:p-5 flex items-center justify-between shadow-md relative overflow-hidden">
+      <!-- ヘッダー内の装飾お祭り感 -->
+      <div class="absolute -right-2 -top-2 opacity-30 text-6xl">🏇</div>
+      <div class="absolute left-1/2 -top-4 opacity-20 text-5xl">🎉</div>
+      <div class="absolute left-1/3 bottom-0 opacity-20 text-4xl">🥕</div>
+
       <div class="flex items-center space-x-3 relative z-10">
-        <div class="p-2 sm:p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 text-white shadow-sm">
-          <i data-lucide="trophy" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        <div class="p-2 sm:p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/40 text-white shadow-sm">
+          <i data-lucide="trophy" class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-100"></i>
         </div>
         <div>
-          <h1 class="text-lg sm:text-2xl font-black text-white leading-tight">ハッピー予想AI</h1>
-          <p class="text-[10px] sm:text-xs text-orange-100 font-bold">高精度アナリストモード</p>
+          <h1 class="text-lg sm:text-2xl font-black text-white leading-tight flex items-center gap-2">
+            ハッピー予想AI
+            <span class="bg-white text-orange-500 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-black shadow-sm">V2</span>
+          </h1>
+          <p class="text-[10px] sm:text-xs text-orange-50 font-bold mt-0.5">高精度アナリストモード稼働中 ✨</p>
         </div>
       </div>
-      <button onclick="app.renderRankings(true)" class="flex items-center px-4 py-2 sm:px-6 sm:py-3 font-black text-orange-600 bg-white rounded-full hover:bg-gray-50 shadow-md active:scale-95 transition-all text-xs sm:text-sm relative z-10">
+      <button onclick="app.renderRankings(true)" class="flex items-center px-4 py-2 sm:px-6 sm:py-3 font-black text-orange-600 bg-white rounded-full hover:bg-orange-50 shadow-lg active:scale-95 transition-all text-xs sm:text-sm relative z-10 hover:shadow-orange-300/50">
         <i data-lucide="sparkles" class="w-4 h-4 mr-1 text-orange-500"></i> <span class="hidden sm:inline">再計算</span><span class="sm:hidden">計算</span>
       </button>
     </header>
 
     <!-- コントロールパネル -->
-    <div class="bg-white p-3 sm:p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-3">
+    <div class="bg-white/80 backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-white shadow-sm flex flex-col gap-3">
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+          <i data-lucide="search" class="w-5 h-5 text-orange-400"></i>
         </div>
-        <select id="raceSelect" onchange="app.changeRace(this.value)" class="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-10 py-3.5 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-50 transition-all appearance-none cursor-pointer">
+        <select id="raceSelect" onchange="app.changeRace(this.value)" class="w-full bg-white border-2 border-orange-100 rounded-2xl pl-12 pr-10 py-3.5 text-sm font-bold text-gray-700 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-50 transition-all appearance-none cursor-pointer shadow-sm fun-input">
           <option value="" disabled selected>👉 レースを選択 / AIに探してもらう</option>
         </select>
         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
           <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
         </div>
       </div>
-      <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-md active:scale-95 transition-all">
+      <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-md hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 transition-all">
         <i data-lucide="bot" id="aiBtnIcon" class="w-5 h-5 mr-2"></i> 
         <span id="aiBtnText">アナリストAIに精密調査を依頼</span>
       </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <!-- 左側：データ入力パネル -->
       <div class="space-y-3">
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden min-h-[300px] flex flex-col">
-          <div class="p-3 sm:p-4 bg-orange-50 flex justify-between items-center border-b border-orange-100/50">
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-md overflow-hidden min-h-[300px] flex flex-col relative">
+          <!-- パネル背景のうっすら馬模様 -->
+          <div class="absolute bottom-0 left-0 opacity-[0.03] text-9xl pointer-events-none -mb-4 -ml-4">🐴</div>
+
+          <div class="p-3 sm:p-4 bg-orange-50/80 backdrop-blur flex justify-between items-center border-b border-orange-100/50">
             <div>
               <h2 id="raceTitle" class="text-base sm:text-lg font-black text-gray-800 flex items-center">
                 <i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-500"></i> データ入力
@@ -177,27 +217,27 @@
                 <i data-lucide="calendar" class="w-3 h-3 mr-1"></i> <span id="raceSubtitleText"></span>
               </p>
             </div>
-            <button onclick="app.addHorse()" class="flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-bold rounded-full shadow-sm active:scale-95 transition-all">
+            <button onclick="app.addHorse()" class="flex items-center px-4 py-2 bg-white border border-orange-200 text-orange-600 hover:bg-orange-50 text-xs sm:text-sm font-black rounded-full shadow-sm active:scale-95 transition-all">
               <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> 追加
             </button>
           </div>
 
-          <div id="emptyDataMsg" class="flex-1 flex flex-col items-center justify-center min-h-[200px] text-gray-300">
-            <i data-lucide="bot" class="w-12 h-12 mb-3 text-gray-200"></i>
-            <p class="font-bold text-sm text-gray-400">上の青いボタンで調査を開始！</p>
+          <div id="emptyDataMsg" class="flex-1 flex flex-col items-center justify-center min-h-[200px] text-orange-200">
+            <i data-lucide="bot" class="w-12 h-12 mb-3 text-orange-200 animate-pulse"></i>
+            <p class="font-bold text-sm text-orange-400">上の青いボタンで調査を開始！</p>
           </div>
 
-          <div id="horseTableContainer" class="hidden p-3 overflow-x-auto custom-scrollbar">
+          <div id="horseTableContainer" class="hidden p-3 overflow-x-auto custom-scrollbar relative z-10">
             <div class="min-w-[740px] space-y-2 pb-2">
-              <div class="grid grid-cols-12 gap-2 text-xs font-bold text-gray-400 text-center pb-1 px-1">
+              <div class="grid grid-cols-12 gap-2 text-[11px] font-black text-gray-400 text-center pb-1 px-1">
                 <div class="col-span-1">枠</div>
                 <div class="col-span-3 text-left pl-2">馬名</div>
                 <div class="col-span-2">オッズ</div>
-                <div class="col-span-2">SP(1-100)</div>
-                <div class="col-span-3">騎手 / 調子 / 適性</div>
+                <div class="col-span-2">SPEED</div>
+                <div class="col-span-3 flex justify-center gap-3"><span>騎手</span><span>調子</span><span>適性</span></div>
                 <div class="col-span-1"></div>
               </div>
-              <div id="horseList" class="space-y-2"></div>
+              <div id="horseList" class="space-y-2.5"></div>
             </div>
           </div>
         </div>
@@ -205,23 +245,23 @@
 
       <!-- 右側：解析結果パネル -->
       <div class="space-y-3">
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden min-h-[400px]">
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-md overflow-hidden min-h-[400px] flex flex-col">
           <div class="p-3 sm:p-4 bg-gray-900 flex justify-between items-center relative overflow-hidden">
-             <!-- 背景にうっすらと紙吹雪アイコン -->
-            <div class="absolute inset-0 opacity-10 flex flex-wrap gap-2 pointer-events-none p-1">
-                <span>🎉</span><span>🎯</span><span>👑</span><span>🎉</span><span>🎯</span><span>👑</span>
+             <!-- 背景のお祭りアイコン -->
+            <div class="absolute inset-0 opacity-15 flex flex-wrap gap-3 pointer-events-none p-1 items-center justify-around text-xl">
+                <span>🎉</span><span>🎯</span><span>👑</span><span>🥕</span><span>💸</span><span>🎉</span><span>🎯</span><span>👑</span>
             </div>
             <h2 class="text-base sm:text-lg font-black text-white flex items-center relative z-10">
               <i data-lucide="target" class="w-5 h-5 mr-1.5 text-orange-400"></i> お宝ランキング
             </h2>
           </div>
           
-          <div id="rankingContainer" class="p-3 sm:p-4 bg-gray-50 min-h-[350px]">
+          <div id="rankingContainer" class="p-3 sm:p-4 bg-gradient-to-b from-gray-50 to-white min-h-[350px] flex-1">
              <div id="emptyRankingMsg" class="flex flex-col items-center justify-center py-16 text-gray-300">
               <i data-lucide="target" class="w-12 h-12 mb-3 text-gray-200"></i>
               <p class="font-bold text-sm text-gray-400">データがありません</p>
             </div>
-            <div id="rankingList" class="space-y-3"></div>
+            <div id="rankingList" class="space-y-4"></div> <!-- space-y-4に広げて馬が走るスペースを確保 -->
           </div>
         </div>
       </div>
@@ -242,7 +282,8 @@
       { date: "2026-06-21", detail: "プレビューのiframe制限によるStorage/CSV保存エラーの回避" },
       { date: "2026-06-21", detail: "APIからモデル一覧を自動取得し、PROを除外した中で最適なモデルを自動選択" },
       { date: "2026-06-21", detail: "Liteモデル（検索機能非対応）を候補から除外し、429エラーを回避する修正" },
-      { date: "2026-06-21", detail: "最新モデルで制限エラー(429)が起きた場合、次点の候補モデルへ自動的に切り替えて再挑戦する自己修復機能を追加" }
+      { date: "2026-06-21", detail: "最新モデルで制限エラー(429)が起きた場合、次点の候補モデルへ自動的に切り替えて再挑戦する自己修復機能を追加" },
+      { date: "2026-06-21", detail: "アプリ名を「V2」に変更し、UI全体をより楽しくなるお祭り感（ドット背景、ホップアニメーション、走る馬のバー）へアップデート" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -554,7 +595,7 @@
               if (lastId) {
                 app.changeRace(lastId);
                 showToast(`詳細なレース調査が完了しました！（使用AI: ${targetModel}）`, "success");
-                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
               }
             }
           }
@@ -695,24 +736,25 @@
       listDiv.innerHTML = '';
       
       state.localHorses.forEach(horse => {
+        // 各行に hover-hop クラスを追加、入力欄に fun-input を追加
         listDiv.innerHTML += `
-          <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 sm:p-2.5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 sm:p-2.5 rounded-2xl border border-orange-50 shadow-sm hover:shadow-md hover-hop transition-all">
             <div class="col-span-1 flex justify-center">
-              <input type="number" value="${horse.number}" onchange="app.updateHorse(${horse.id}, 'number', this)" class="w-10 h-10 text-center font-black text-base rounded-xl border border-gray-200 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all ${getNumberColor(horse.number)}" />
+              <input type="number" value="${horse.number}" onchange="app.updateHorse(${horse.id}, 'number', this)" class="fun-input w-10 h-10 text-center font-black text-base rounded-xl border border-gray-200 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 ${getNumberColor(horse.number)}" />
             </div>
             <div class="col-span-3">
-              <input type="text" value="${horse.name}" onchange="app.updateHorse(${horse.id}, 'name', this)" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all" />
+              <input type="text" value="${horse.name}" onchange="app.updateHorse(${horse.id}, 'name', this)" class="fun-input w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" />
             </div>
             <div class="col-span-2 flex justify-center">
-              <input type="number" step="0.1" value="${horse.odds}" onchange="app.updateHorse(${horse.id}, 'odds', this)" class="w-full max-w-[5rem] bg-yellow-50 border border-yellow-200 rounded-xl px-2 py-2 text-right text-orange-600 font-black text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all" />
+              <input type="number" step="0.1" value="${horse.odds}" onchange="app.updateHorse(${horse.id}, 'odds', this)" class="fun-input w-full max-w-[5rem] bg-yellow-50 border border-yellow-200 rounded-xl px-2 py-2 text-right text-orange-600 font-black text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
             </div>
             <div class="col-span-2 flex justify-center">
-              <input type="number" value="${horse.speed}" onchange="app.updateHorse(${horse.id}, 'speed', this)" class="w-full max-w-[4rem] bg-gray-50 border border-gray-200 rounded-xl px-1 py-2 text-center font-bold text-sm text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all" />
+              <input type="number" value="${horse.speed}" onchange="app.updateHorse(${horse.id}, 'speed', this)" class="fun-input w-full max-w-[4rem] bg-gray-50 border border-gray-200 rounded-xl px-1 py-2 text-center font-bold text-sm text-gray-700 outline-none focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" />
             </div>
             <div class="col-span-3 flex justify-center gap-1.5">
-                <input type="number" max="10" min="1" value="${horse.jockey}" onchange="app.updateHorse(${horse.id}, 'jockey', this)" class="w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all" title="騎手" />
-                <input type="number" max="5" min="1" value="${horse.condition}" onchange="app.updateHorse(${horse.id}, 'condition', this)" class="w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all" title="調子" />
-                <input type="number" max="5" min="1" value="${horse.suitability}" onchange="app.updateHorse(${horse.id}, 'suitability', this)" class="w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 transition-all" title="適性" />
+                <input type="number" max="10" min="1" value="${horse.jockey}" onchange="app.updateHorse(${horse.id}, 'jockey', this)" class="fun-input w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" title="騎手" />
+                <input type="number" max="5" min="1" value="${horse.condition}" onchange="app.updateHorse(${horse.id}, 'condition', this)" class="fun-input w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" title="調子" />
+                <input type="number" max="5" min="1" value="${horse.suitability}" onchange="app.updateHorse(${horse.id}, 'suitability', this)" class="fun-input w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-sm font-bold text-gray-600 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100" title="適性" />
             </div>
             <div class="col-span-1 flex justify-center">
               <button onclick="app.removeHorse(${horse.id})" class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl active:scale-90 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
@@ -778,7 +820,7 @@
         let extraNameDecor = '';
         
         if (index === 0) {
-            rankIcon = '<i data-lucide="crown" class="w-4 h-4 text-yellow-500 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
+            rankIcon = '<i data-lucide="crown" class="w-4 h-4 text-yellow-500 absolute -top-1 -left-1 drop-shadow-md z-10 animate-bounce"></i>';
             if(horse.expectedValue >= 1.2) {
                 extraCardClass = 'gold-pulse'; 
                 extraNameDecor = '✨';
@@ -787,7 +829,7 @@
         else if (index === 2) rankIcon = '<i data-lucide="crown" class="w-4 h-4 text-orange-700 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
 
         rankingList.innerHTML += `
-          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden ${extraCardClass}">
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-visible ${extraCardClass}">
             <div class="flex justify-between items-center mb-3">
               <div class="flex items-center gap-3 relative z-10">
                 <div class="relative">
@@ -799,14 +841,16 @@
               <span class="text-xs sm:text-sm font-black px-3 py-1.5 rounded-full border ${horse.evaluation.style} shadow-sm relative z-10">${horse.evaluation.word}</span>
             </div>
 
-            <div class="mb-3 bg-white/60 p-3 rounded-xl border border-gray-100 relative z-10 backdrop-blur-sm">
+            <div class="mb-3 bg-white/60 p-3 rounded-xl border border-gray-100 relative z-10 backdrop-blur-sm mt-5">
               <div class="flex justify-between text-xs sm:text-sm font-bold mb-1.5">
                 <span class="text-gray-500">期待値</span>
                 <span class="${horse.expectedValue >= 1.0 ? 'text-orange-600 font-black' : 'text-gray-500'}">${fireIcon}${horse.expectedValue}</span>
               </div>
-              <div class="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden relative">
+              <!-- バーの上に馬が走る演出 -->
+              <div class="h-2.5 w-full bg-gray-200 rounded-full overflow-visible relative mt-4">
+                <div class="racing-horse z-20" style="left: ${width}%">🏇</div>
                 <div class="absolute top-0 bottom-0 w-0.5 bg-gray-800 z-10" style="left: 50%"></div>
-                <div class="h-full ${barColor} rounded-full transition-all duration-1000 ease-out" style="width: ${width}%"></div>
+                <div class="h-full ${barColor} rounded-full transition-all duration-1000 ease-out relative z-0" style="width: ${width}%"></div>
               </div>
             </div>
 

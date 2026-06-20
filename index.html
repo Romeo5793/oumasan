@@ -5,23 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ハッピー予想AI</title>
   
+  <!-- Webアプリ＆ホーム画面（Web Clip）アイコン設定 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ウマ勝AI">
+  <!-- ブラウザタブ用のアイコン -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
-  <!-- iPhoneホーム画面用のアイコンを自動生成 -->
+  <!-- iPhoneホーム画面用のアイコンを自動生成（iOSのSVG非対応対策） -->
   <script>
     (function() {
       const canvas = document.createElement('canvas');
       canvas.width = 180;
       canvas.height = 180;
       const ctx = canvas.getContext('2d');
+      // 背景をオレンジに塗る
       ctx.fillStyle = '#f97316';
       ctx.fillRect(0, 0, 180, 180);
+      // 中央に馬の絵文字を描画
       ctx.font = '100px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('🐴', 90, 100);
+      // PNG画像としてアイコンに設定
       const link = document.createElement('link');
       link.rel = 'apple-touch-icon';
       link.href = canvas.toDataURL('image/png');
@@ -29,7 +35,10 @@
     })();
   </script>
   
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -38,6 +47,7 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(251, 146, 60, 0.5); border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.8); }
     
+    /* 簡易トーストアニメーション */
     @keyframes slideDown {
       from { transform: translate(-50%, -100%); opacity: 0; }
       to { transform: translate(-50%, 0); opacity: 1; }
@@ -47,10 +57,12 @@
 </head>
 <body class="bg-[#FFFBF0] text-gray-800 font-sans min-h-screen">
 
-  <div id="toast" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex items-center px-4 py-2 rounded shadow-md font-bold text-sm toast-anim">
+  <!-- トースト通知 -->
+  <div id="toast" class="hidden fixed top-4 left-1/2 z-50 flex items-center px-4 py-2 rounded shadow-md font-bold text-sm toast-anim">
     <span id="toastMsg"></span>
   </div>
 
+  <!-- ログイン（APIキー入力）画面 -->
   <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full border-4 border-yellow-300">
       <div class="flex justify-center mb-6">
@@ -82,12 +94,11 @@
     </div>
   </div>
 
+  <!-- メインアプリ画面 -->
   <div id="mainApp" class="hidden max-w-6xl mx-auto space-y-4 p-2 sm:p-4">
     
-    <div class="flex justify-end gap-2 px-1 mb-2">
-      <button onclick="app.resetApiKey()" class="flex items-center gap-1 px-3 py-1 bg-white text-gray-500 text-xs font-bold rounded-full border border-gray-200 hover:bg-gray-50 transition-colors">
-        <i data-lucide="key" class="w-3.5 h-3.5"></i> APIキー変更
-      </button>
+    <!-- ナビゲーション -->
+    <div class="flex justify-end gap-2 px-1">
       <button onclick="window.open('https://www.jra.go.jp/kouyu/app/', '_blank')" class="flex items-center gap-1 px-3 py-1 bg-white text-green-700 text-xs font-bold rounded-full border border-green-200 hover:bg-green-50 transition-colors">
         <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> アプリ
       </button>
@@ -96,6 +107,7 @@
       </button>
     </div>
 
+    <!-- ヘッダー -->
     <header class="bg-gradient-to-r from-orange-400 to-yellow-400 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center space-x-3">
         <div class="p-2 bg-white rounded-full"><i data-lucide="trophy" class="w-6 h-6 text-orange-500"></i></div>
@@ -109,11 +121,13 @@
       </button>
     </header>
 
+    <!-- コントロールパネル -->
     <div class="bg-white p-3 rounded-2xl border-2 border-yellow-200 flex flex-col md:flex-row items-center gap-3">
       <div class="flex-1 flex items-center gap-2 w-full">
         <i data-lucide="search" class="w-5 h-5 text-orange-400 ml-2"></i>
         <select id="raceSelect" onchange="app.changeRace(this.value)" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-bold text-gray-700 outline-none focus:border-orange-400">
           <option value="" disabled selected>👉 レースを選択、またはAIに探してもらおう！</option>
+          <!-- 動的挿入 -->
         </select>
       </div>
       <button id="aiBtn" onclick="app.researchAI()" class="w-full md:w-auto flex justify-center items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">
@@ -122,14 +136,9 @@
       </button>
     </div>
 
-    <!-- エラー・ログ表示用コンテナ -->
-    <div id="error-message" class="hidden bg-red-50 border-2 border-red-200 text-red-800 p-4 rounded-2xl text-center mb-4 flex flex-col items-center shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-red-400"></div>
-        <div id="error-content" class="w-full"></div>
-    </div>
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       
+      <!-- 左側：データ入力パネル -->
       <div class="space-y-4">
         <div class="bg-white rounded-2xl border-2 border-orange-100 overflow-hidden min-h-[300px]">
           <div class="p-3 bg-orange-50 flex justify-between items-center border-b border-orange-100">
@@ -159,7 +168,9 @@
                 <div class="col-span-3">騎/調/適</div>
                 <div class="col-span-1"></div>
               </div>
-              <div id="horseList"></div>
+              <div id="horseList">
+                <!-- 馬データ動的挿入 -->
+              </div>
             </div>
           </div>
         </div>
@@ -170,18 +181,21 @@
         </div>
       </div>
 
+      <!-- 右側：解析結果パネル -->
       <div class="space-y-4">
         <div class="bg-white rounded-2xl border-2 border-yellow-300 overflow-hidden min-h-[400px]">
           <div class="p-3 bg-gradient-to-r from-yellow-400 to-orange-400 flex justify-between items-center">
             <h2 class="text-lg font-black text-white flex items-center"><i data-lucide="target" class="w-5 h-5 mr-1"></i> お宝ランキング</h2>
           </div>
           
-          <div id="rankingContainer" class="p-3 space-y-3 bg-orange-50/20 h-full">
+          <div id="rankingContainer" class="p-3 space-y-3 bg-orange-50/20">
              <div id="emptyRankingMsg" class="flex flex-col items-center justify-center py-10 text-orange-300">
               <i data-lucide="target" class="w-10 h-10 mb-2"></i>
               <p class="font-bold">データを入れてね！</p>
             </div>
-            <div id="rankingList"></div>
+            <div id="rankingList">
+              <!-- ランキングデータ動的挿入 -->
+            </div>
           </div>
         </div>
       </div>
@@ -194,59 +208,7 @@
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- 内部ロギングシステム ---
-    const appLogs = [];
-
-    function addLog(level, message, details = "") {
-        const now = new Date();
-        const timeStr = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`;
-        const detailStr = typeof details === 'object' ? JSON.stringify(details) : String(details);
-        
-        appLogs.push({ time: timeStr, level, message, details: detailStr });
-        
-        if(level === 'ERROR' || level === 'WARN') {
-            console.error(`[${level}] ${message}`, details);
-        } else {
-            console.log(`[${level}] ${message}`);
-        }
-    }
-
-    // HTMLから直接呼べるようにwindowオブジェクトに登録
-    window.downloadLogsCSV = function() {
-        let csv = '\uFEFF'; 
-        csv += '"Time","Level","Message","Details"\n'; 
-        
-        appLogs.forEach(log => {
-            const safeMsg = String(log.message || "").replace(/"/g, '""');
-            const safeDetails = String(log.details || "").replace(/"/g, '""');
-            csv += `"${log.time}","${log.level}","${safeMsg}","${safeDetails}"\n`;
-        });
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `umakatsu_error_logs_${new Date().getTime()}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        addLog("INFO", "エラーログのCSVダウンロードを実行しました");
-    }
-
-    function getLogButtonHTML() {
-        return `
-            <div class="mt-3 w-full flex justify-center">
-                <button onclick="downloadLogsCSV()" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-xs font-bold border border-red-300 transition-colors inline-flex items-center shadow-sm cursor-pointer">
-                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>
-                    内部エラーログ(CSV)を保存して調査
-                </button>
-            </div>
-        `;
-    }
-
-    // --- Firebase 初期化 ---
+    // 環境変数 (Canvas環境から提供される前提。ない場合はLocalStorageにフォールバック)
     let auth = null;
     let db = null;
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -259,11 +221,10 @@
           const firebaseApp = initializeApp(firebaseConfig);
           auth = getAuth(firebaseApp);
           db = getFirestore(firebaseApp);
-          addLog("INFO", "Firebase initialized successfully");
         }
       }
     } catch(e) {
-      addLog("WARN", "Firebase not configured. Using LocalStorage.", e.message);
+      console.log("Firebase not configured. Using LocalStorage.");
     }
 
     // 状態管理
@@ -272,144 +233,94 @@
       races: [],
       selectedRaceId: '',
       localHorses: [],
-      appApiKey: localStorage.getItem('umakatsu_api_key') || '',
+      appApiKey: '',
       unsubscribeFirestore: null
     };
 
     // UI更新用のグローバルオブジェクト
     window.app = {
+      // ログイン処理
       login: (e) => {
-        if (e) e.preventDefault();
+        e.preventDefault();
         const key = document.getElementById('apiKeyInput').value.trim();
         if (!key) {
           showToast('APIキーを入力してください', 'error');
           return;
         }
         state.appApiKey = key;
-        localStorage.setItem('umakatsu_api_key', key);
-        addLog("INFO", "API Key saved and login successful");
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         lucide.createIcons();
-        if (state.user || !auth) {
+        if (state.user) {
           startFirestoreSync();
         }
       },
 
-      resetApiKey: () => {
-        localStorage.removeItem('umakatsu_api_key');
-        state.appApiKey = '';
-        document.getElementById('apiKeyInput').value = '';
-        document.getElementById('mainApp').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-        addLog("INFO", "API Key reset");
-      },
-
+      // レースの切り替え
       changeRace: (raceId) => {
         state.selectedRaceId = raceId;
         const currentRace = state.races.find(r => r.raceId === raceId);
         state.localHorses = currentRace && currentRace.horses ? currentRace.horses : [];
-        addLog("INFO", "Race changed", raceId);
         renderUI();
       },
 
+      // 馬の追加
       addHorse: () => {
         if (!state.selectedRaceId) {
           showToast("レースを選択してください", "error");
           return;
         }
         const newNumber = state.localHorses.length > 0 ? Math.max(...state.localHorses.map(h => h.number)) + 1 : 1;
-        const newHorse = { id: Date.now(), number: newNumber, name: `追加馬${newNumber}`, odds: 10.0, speed: 70, jockey: 5, condition: 3, suitability: 3 };
+        const newHorse = { 
+          id: Date.now(), number: newNumber, name: `追加馬${newNumber}`, odds: 10.0, speed: 70, jockey: 5, condition: 3, suitability: 3 
+        };
         state.localHorses.push(newHorse);
         saveToFirestore();
         renderUI();
       },
 
+      // 馬の削除
       removeHorse: (id) => {
         state.localHorses = state.localHorses.filter(h => h.id !== id);
         saveToFirestore();
         renderUI();
       },
 
+      // 馬のデータ更新
       updateHorse: (id, field, element) => {
         let value = element.value;
         if (field === 'name') value = String(value);
         else value = Number(value);
+
         state.localHorses = state.localHorses.map(h => h.id === id ? { ...h, [field]: value } : h);
         saveToFirestore();
-        app.renderRankings(); 
+        app.renderRankings(); // 値が変わった時だけランキングも再計算
       },
 
+      // ランキングだけ再計算（ボタン用）
       renderRankings: () => {
         renderRankingPanel();
         lucide.createIcons();
       },
 
-      // 利用可能な最適なモデルを自動取得する関数
-      getBestModel: async () => {
-        if (!state.appApiKey) return 'gemini-1.5-flash';
-
-        try {
-          addLog("INFO", "Requesting available models list");
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${state.appApiKey}`);
-          if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-          
-          const data = await response.json();
-          const availableModels = data.models.map(m => m.name.replace('models/', ''));
-
-          // Proモデルを避け、Flashモデルを優先する順位リスト
-          const preferredModels = [
-              'gemini-2.5-flash-preview-09-2025', 
-              'gemini-2.5-flash',
-              'gemini-1.5-flash-latest',
-              'gemini-1.5-flash'
-          ];
-
-          for (const preferred of preferredModels) {
-              if (availableModels.includes(preferred)) {
-                  addLog("INFO", `モデルを選定しました: ${preferred}`);
-                  return preferred;
-              }
-          }
-
-          const fallbackFlash = availableModels.find(m => m.includes('flash') && !m.includes('pro'));
-          if (fallbackFlash) {
-             addLog("INFO", `フォールバックモデルを選定: ${fallbackFlash}`);
-             return fallbackFlash;
-          }
-
-          addLog("INFO", "推奨モデルが見つからないためデフォルトを使用します");
-          return 'gemini-1.5-flash';
-
-        } catch (e) {
-          addLog("WARN", "モデル一覧の取得に失敗したため、デフォルトを使用します。", e.message);
-          return 'gemini-1.5-flash';
-        }
-      },
-
-      // AIリサーチ
+      // AIリサーチ (Gemini API)
       researchAI: async () => {
-        if (!state.appApiKey) return;
+        if (!state.user || !state.appApiKey) return;
         
         const btnText = document.getElementById('aiBtnText');
         const btnIcon = document.getElementById('aiBtnIcon');
         const btn = document.getElementById('aiBtn');
-        const errorContainer = document.getElementById('error-message');
         
         btn.disabled = true;
         btn.classList.add('opacity-50');
         btnIcon.setAttribute('data-lucide', 'loader-2');
         btnIcon.classList.add('animate-spin');
-        btnText.innerText = 'AIモデルの選定と調査準備中...';
-        errorContainer.classList.add('hidden');
+        btnText.innerText = '調査中...';
         lucide.createIcons();
 
         try {
-          addLog("INFO", "AIリサーチ処理を開始します");
-          const bestModel = await app.getBestModel();
-          btnText.innerText = '調査中...';
-
           const existingRaceNames = state.races.map(r => r.raceName).join(', ');
+          // Google検索と併用するため、プロンプト内でJSON形式を強制するように修正
           const prompt = `
             あなたはプロの競馬データアナリストです。現在は2026年6月20日（土曜日）です。
             今週末（2026年6月20日〜21日）に開催されるJRAの主要な重賞レースまたはメインレースについて、Google検索を用いて正確な出馬表を調査してください。
@@ -418,48 +329,33 @@
             2. 「単勝オッズ(odds)」は最新データを反映。
             3. speed(1-100), jockey(1-10), condition(1-5), suitability(1-5) を検索結果から論理的に算出。
             4. 既存データ: [ ${existingRaceNames || 'なし'} ] がある場合はオッズ変動等を含む更新版を作成。ない場合は今週末の注目レースを1〜2つ新規作成。
+
+            【重要】出力は以下のJSON構造に厳密に従い、Markdownのコードブロック(\`\`\`json など)は含めず、純粋なJSON文字列のみを出力してください。
+            {
+              "races": [{
+                "raceId": "文字列", "raceName": "文字列", "date": "文字列", "track": "文字列", "distance": "文字列",
+                "horses": [{"id": 1, "number": 1, "name": "文字列", "odds": 1.0, "speed": 50, "jockey": 5, "condition": 3, "suitability": 3}]
+              }]
+            }
           `;
 
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${bestModel}:generateContent?key=${state.appApiKey}`;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${state.appApiKey}`;
           
           let res;
           for (let i = 0; i < 3; i++) {
             try {
-              addLog("INFO", `Gemini API リクエスト送信 (${i+1}/3)`, url);
               res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
-                  tools: [{ google_search: {} }],
-                  systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONスキーマのみを出力してください。" }]},
-                  generationConfig: { 
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                      type: "OBJECT",
-                      properties: {
-                        races: { type: "ARRAY", items: { type: "OBJECT", properties: {
-                          raceId: { type: "STRING" }, raceName: { type: "STRING" }, date: { type: "STRING" }, track: { type: "STRING" }, distance: { type: "STRING" },
-                          horses: { type: "ARRAY", items: { type: "OBJECT", properties: {
-                            id: { type: "NUMBER" }, number: { type: "NUMBER" }, name: { type: "STRING" }, odds: { type: "NUMBER" }, speed: { type: "NUMBER" }, jockey: { type: "NUMBER" }, condition: { type: "NUMBER" }, suitability: { type: "NUMBER" }
-                          }}}
-                        }}}
-                      }
-                    }
-                  }
+                  tools: [{ google_search: {} }], // 検索ツールを利用
+                  // generationConfigのJSONモードは検索ツールと併用できないため削除
+                  systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONフォーマットのみを出力してください。その他の挨拶や解説文は一切不要です。" }]}
                 })
               });
-              
-              if (res.ok) {
-                  addLog("INFO", "Gemini API リクエスト成功");
-                  break;
-              } else {
-                  const errText = await res.text();
-                  addLog("WARN", `API非正常終了 Status: ${res.status}`, errText);
-                  if (i === 2) throw new Error(`HTTP Error: ${res.status} - ${errText}`);
-              }
+              if (res.ok) break;
             } catch (e) {
-              addLog("WARN", `通信エラー (${i+1}回目)`, e.message);
               if (i === 2) throw e;
               await new Promise(r => setTimeout(r, 1500));
             }
@@ -470,12 +366,14 @@
           
           if (text) {
             btnText.innerText = '保存中...';
-            addLog("INFO", "JSONデータのパースと保存を開始");
-            const parsed = JSON.parse(text);
+            // Markdownのバッククォートが含まれている場合は除去してパースを安定させる
+            const cleanText = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleanText);
+            
             if (parsed && parsed.races) {
               let lastId = state.selectedRaceId;
               for (const race of parsed.races) {
-                if (db && state.user && state.user.uid !== 'local_user') {
+                if (db && state.user) {
                   const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', race.raceId);
                   await setDoc(raceRef, race, { merge: true });
                 } else {
@@ -489,10 +387,9 @@
                 lastId = race.raceId;
               }
 
-              if (!db || (state.user && state.user.uid === 'local_user')) {
+              if (!db) {
                 state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
                 localStorage.setItem('umakatsu_races', JSON.stringify(state.races));
-                addLog("INFO", "Local storage updated");
               }
 
               if (lastId) {
@@ -500,22 +397,10 @@
                 showToast("詳細なレース調査と更新が完了しました！", "success");
               }
             }
-          } else {
-              throw new Error("AIが有効なテキストを返しませんでした。");
           }
         } catch (e) {
-          addLog("ERROR", "APIリサーチ処理中に重大なエラーが発生しました", e.message || e);
           console.error(e);
-          showToast("調査に失敗しました", "error");
-          
-          // エラーメッセージとログダウンロードボタンの表示
-          const errorContent = document.getElementById('error-content');
-          errorContent.innerHTML = `
-              <div class="font-black mb-1">AI調査中にエラーが発生しました</div>
-              <div class="text-[11px] text-red-600 font-mono break-all mb-2 text-left bg-red-100 p-2 rounded">${e.message}</div>
-              ${getLogButtonHTML()}
-          `;
-          errorContainer.classList.remove('hidden');
+          showToast("調査に失敗しました。時間をおいて再試行してください。", "error");
         } finally {
           btn.disabled = false;
           btn.classList.remove('opacity-50');
@@ -527,18 +412,13 @@
       }
     };
 
-    // --- イベントリスナー設定 ---
+    // --- 初期化とイベントリスナー設定 ---
     document.getElementById('loginForm').addEventListener('submit', app.login);
-
-    if (state.appApiKey) {
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-    }
 
     const initAuth = async () => {
       if (!auth) {
+        // Firebase環境がない場合はローカルで動かす
         state.user = { uid: 'local_user' };
-        if (state.appApiKey) startFirestoreSync();
         return;
       }
       try {
@@ -548,7 +428,7 @@
           await signInAnonymously(auth);
         }
       } catch (err) {
-        addLog("ERROR", "Auth error", err);
+        console.error("Auth error:", err);
       }
     };
 
@@ -564,8 +444,10 @@
     initAuth();
     lucide.createIcons();
 
+    // --- データ保存・同期 連携 ---
     function startFirestoreSync() {
-      if (!db || (state.user && state.user.uid === 'local_user')) {
+      if (!db) {
+        // データベースがない（GitHub Pages等）場合は LocalStorage を使う
         const saved = localStorage.getItem('umakatsu_races');
         if (saved) {
           state.races = JSON.parse(saved);
@@ -588,6 +470,7 @@
         raceData.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
         state.races = raceData;
         
+        // 選択中のレースのローカルデータも更新
         if (state.selectedRaceId) {
           const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
           if (currentRace) state.localHorses = currentRace.horses || [];
@@ -595,22 +478,22 @@
         renderSelect();
         renderUI();
       }, (error) => {
-        addLog("ERROR", "Firestore sync error", error);
+        console.error("Firestore error:", error);
         showToast("データの同期に失敗しました", "error");
       });
     }
 
     async function saveToFirestore() {
       if (!state.selectedRaceId) return;
-      if (db && state.user && state.user.uid !== 'local_user') {
+      if (db && state.user) {
         try {
           const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', state.selectedRaceId);
           await setDoc(raceRef, { horses: state.localHorses }, { merge: true });
         } catch (e) {
-          addLog("ERROR", "Firestore save error", e);
           showToast("保存エラー", "error");
         }
       } else {
+        // LocalStorageに保存
         const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
         if (raceIdx >= 0) {
           state.races[raceIdx].horses = state.localHorses;
@@ -619,6 +502,7 @@
       }
     }
 
+    // --- UI 描画関数 ---
     function getNumberColor(num) {
       const colors = [
         'bg-white text-gray-800 border-gray-300', 'bg-gray-800 text-white border-gray-900', 'bg-red-500 text-white border-red-600', 'bg-blue-500 text-white border-blue-600',
@@ -640,6 +524,7 @@
     function renderUI() {
       const currentRaceInfo = state.races.find(r => r.raceId === state.selectedRaceId);
       
+      // レースタイトル表示
       document.getElementById('raceTitle').innerHTML = `<i data-lucide="flag" class="w-5 h-5 mr-1 text-orange-500"></i> ${currentRaceInfo ? currentRaceInfo.raceName : 'データ入力'}`;
       
       if (currentRaceInfo) {
@@ -653,6 +538,7 @@
         document.getElementById('horseTableContainer').classList.add('hidden');
       }
 
+      // 馬のテーブル描画
       const listDiv = document.getElementById('horseList');
       listDiv.innerHTML = '';
       
@@ -699,6 +585,7 @@
       }
       emptyMsg.classList.add('hidden');
 
+      // 期待値の計算
       const scoredHorses = state.localHorses.map(horse => {
         const rawScore = (Number(horse.speed) * 0.5) + (Number(horse.jockey) * 10 * 0.2) + (Number(horse.condition) * 20 * 0.15) + (Number(horse.suitability) * 20 * 0.15);
         return { ...horse, rawScore, weight: Math.pow(rawScore, 3) };
@@ -762,6 +649,7 @@
       });
     }
 
+    // --- トースト通知 ---
     let toastTimeout;
     function showToast(msg, type = 'info') {
       const toast = document.getElementById('toast');

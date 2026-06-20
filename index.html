@@ -187,12 +187,24 @@
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // 環境変数 (Canvas環境から提供される前提)
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-    const firebaseApp = initializeApp(firebaseConfig);
-    const auth = getAuth(firebaseApp);
-    const db = getFirestore(firebaseApp);
+    // 環境変数 (Canvas環境から提供される前提。ない場合はLocalStorageにフォールバック)
+    let auth = null;
+    let db = null;
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    try {
+      const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+      if (configStr) {
+        const firebaseConfig = JSON.parse(configStr);
+        if (Object.keys(firebaseConfig).length > 0) {
+          const firebaseApp = initializeApp(firebaseConfig);
+          auth = getAuth(firebaseApp);
+          db = getFirestore(firebaseApp);
+        }
+      }
+    } catch(e) {
+      console.log("Firebase not configured. Using LocalStorage.");
+    }
 
     // 状態管理
     const state = {
@@ -341,10 +353,25 @@
             if (parsed && parsed.races) {
               let lastId = state.selectedRaceId;
               for (const race of parsed.races) {
-                const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', race.raceId);
-                await setDoc(raceRef, race, { merge: true });
+                if (db && state.user) {
+                  const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', race.raceId);
+                  await setDoc(raceRef, race, { merge: true });
+                } else {
+                  const existingIdx = state.races.findIndex(r => r.raceId === race.raceId);
+                  if (existingIdx >= 0) {
+                    state.races[existingIdx] = { ...state.races[existingIdx], ...race };
+                  } else {
+                    state.races.push(race);
+                  }
+                }
                 lastId = race.raceId;
               }
+
+              if (!db) {
+                state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
+                localStorage.setItem('umakatsu_races', JSON.stringify(state.races));
+              }
+
               if (lastId) {
                 app.changeRace(lastId);
                 showToast("詳細なレース調査と更新が完了しました！", "success");
@@ -369,6 +396,11 @@
     document.getElementById('loginForm').addEventListener('submit', app.login);
 
     const initAuth = async () => {
+      if (!auth) {
+        // Firebase環境がない場合はローカルで動かす
+        state.user = { uid: 'local_user' };
+        return;
+      }
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
@@ -380,18 +412,35 @@
       }
     };
 
-    onAuthStateChanged(auth, (user) => {
-      state.user = user;
-      if (state.user && state.appApiKey) {
-        startFirestoreSync();
-      }
-    });
+    if (auth) {
+      onAuthStateChanged(auth, (user) => {
+        state.user = user;
+        if (state.user && state.appApiKey) {
+          startFirestoreSync();
+        }
+      });
+    }
 
     initAuth();
     lucide.createIcons();
 
-    // --- Firestore 連携 ---
+    // --- データ保存・同期 連携 ---
     function startFirestoreSync() {
+      if (!db) {
+        // データベースがない（GitHub Pages等）場合は LocalStorage を使う
+        const saved = localStorage.getItem('umakatsu_races');
+        if (saved) {
+          state.races = JSON.parse(saved);
+        }
+        if (state.selectedRaceId) {
+          const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
+          if (currentRace) state.localHorses = currentRace.horses || [];
+        }
+        renderSelect();
+        renderUI();
+        return;
+      }
+
       if (state.unsubscribeFirestore) state.unsubscribeFirestore();
       
       const racesRef = collection(db, 'artifacts', appId, 'users', state.user.uid, 'races');
@@ -415,12 +464,21 @@
     }
 
     async function saveToFirestore() {
-      if (!state.user || !state.selectedRaceId) return;
-      try {
-        const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', state.selectedRaceId);
-        await setDoc(raceRef, { horses: state.localHorses }, { merge: true });
-      } catch (e) {
-        showToast("保存エラー", "error");
+      if (!state.selectedRaceId) return;
+      if (db && state.user) {
+        try {
+          const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', state.selectedRaceId);
+          await setDoc(raceRef, { horses: state.localHorses }, { merge: true });
+        } catch (e) {
+          showToast("保存エラー", "error");
+        }
+      } else {
+        // LocalStorageに保存
+        const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
+        if (raceIdx >= 0) {
+          state.races[raceIdx].horses = state.localHorses;
+        }
+        localStorage.setItem('umakatsu_races', JSON.stringify(state.races));
       }
     }
 

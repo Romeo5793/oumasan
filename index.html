@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V2</title>
+  <title>お馬さんトレジャー V3</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V2">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -60,12 +60,12 @@
     .momo-title span {
       display: inline-block;
       color: #fff;
-      -webkit-text-stroke: 2px #d84315; /* フチを太くして視認性アップ */
+      -webkit-text-stroke: 2px #d84315;
       paint-order: stroke fill;
       text-shadow: 2px 2px 0px #d84315, 4px 4px 0px rgba(0,0,0,0.3);
       animation: charBounce 1s infinite;
     }
-    .momo-title span.v2-badge {
+    .momo-title span.v3-badge {
       -webkit-text-stroke: 1px #fff;
       text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
     }
@@ -84,19 +84,21 @@
       50% { transform: translateY(-10px) scale(1.1) rotate(5deg); }
     }
 
-    /* 画面を横切る馬のアニメーション (軽量) */
+    /* 画面を横切る馬のアニメーション (軽量・最前面・向き修正) */
     @keyframes crossRight {
-      0% { transform: translateX(-100px); }
-      100% { transform: translateX(100vw); }
+      /* 🐎はデフォルトで左向きなので、右に進む時は反転(scaleX(-1))させる */
+      0% { transform: translateX(-100px) scaleX(-1); }
+      100% { transform: translateX(100vw) scaleX(-1); }
     }
     @keyframes crossLeft {
-      0% { transform: translateX(100vw) scaleX(-1); }
-      100% { transform: translateX(-100px) scaleX(-1); }
+      /* 左に進む時はそのままの向き */
+      0% { transform: translateX(100vw); }
+      100% { transform: translateX(-100px); }
     }
     .horse-crossing {
       position: fixed;
       pointer-events: none;
-      z-index: 0;
+      z-index: 9999; /* 最前面に表示 */
       font-size: 3rem;
       will-change: transform;
     }
@@ -159,7 +161,7 @@
   <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm relative z-50">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col">
       <h3 class="font-black text-red-600 mb-2 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> エラーログ</h3>
-      <p class="text-sm font-bold text-gray-800 mb-3">環境制限のため自動保存ができませんでした。以下のログをご確認ください。</p>
+      <p class="text-sm font-bold text-gray-800 mb-3">動作中に問題が発生しました。以下のログをご確認ください。</p>
       <textarea id="errorLogText" class="w-full h-48 text-xs bg-gray-50 border border-gray-300 rounded-xl p-3 mb-4 font-mono outline-none text-gray-900" readonly></textarea>
       <button onclick="document.getElementById('errorLogModal').classList.add('hidden')" class="px-4 py-3 bg-gray-800 hover:bg-black text-white font-bold rounded-xl active:scale-95 transition-all">閉じる</button>
     </div>
@@ -176,10 +178,10 @@
       
       <!-- 桃鉄風ド派手で可愛いタイトル -->
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-3 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v2-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V2</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V3</span>
       </h1>
       
-      <p class="text-center text-xs font-black text-orange-900 mb-8 bg-yellow-300/80 py-2 px-5 rounded-full mx-auto block w-fit shadow-sm border-2 border-yellow-400">お祭りUI 大幅強化版！🎊</p>
+      <p class="text-center text-xs font-black text-orange-900 mb-8 bg-yellow-300/80 py-2 px-5 rounded-full mx-auto block w-fit shadow-sm border-2 border-yellow-400">安定動作ローカル版！🎊</p>
       
       <form id="loginForm" class="space-y-5 relative z-10">
         <div>
@@ -226,7 +228,7 @@
         <div>
           <!-- ヘッダータイトルも見やすく -->
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v2-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V2</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V3</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -249,7 +251,7 @@
           <i data-lucide="chevron-down" class="w-6 h-6 text-blue-500"></i>
         </div>
       </div>
-      <!-- V2 差分調査ボタン -->
+      <!-- V3 差分調査ボタン -->
       <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-black rounded-2xl shadow-[0_6px_0_#1E3A8A] active:shadow-[0_0px_0_#1E3A8A] active:translate-y-[6px] transition-all text-base sm:text-xl border-2 border-blue-800">
         <i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> 
         <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>
@@ -324,11 +326,7 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+  <script>
     const apiKey = ""; 
 
     // --- 📋 要求履歴・実装履歴の自己チェック機能 ---
@@ -339,25 +337,25 @@
       { date: "2026-06-21", detail: "桃鉄でゴールした時のような「わちゃわちゃ感・お祭り感」を全画面に徹底的に追加" },
       { date: "2026-06-21", detail: "アプリ名を変更、フォントを丸く可愛くし、メーターの馬を前面に配置してぴょこぴょこ走るように改善" },
       { date: "2026-06-21", detail: "アプリ名にバージョン(V2)を追加し、既存データをベースにした差分調査と評価基準の明確化による精度向上を実装" },
-      { date: "2026-06-21", detail: "【検証・再実装】スマホ発熱対策として背景パーティクルを削除。破損を防ぐためDOM生成・破棄型の『たまに横切るお馬さん』演出を安全に再実装し、V2と統合。" }
+      { date: "2026-06-21", detail: "スマホ発熱対策として背景パーティクルを削除。破損を防ぐためDOM生成・破棄型の『たまに横切るお馬さん』演出を安全に再実装し、V2と統合。" },
+      { date: "2026-06-21", detail: "【修正】たまに横切るおうまさんのz-indexを9999に変更し最前表示へ。また、絵文字の向きに合わせて進行方向のアニメーションを修正。" },
+      { date: "2026-06-21", detail: "【完全ローカル化(V3)】Firebaseへの依存を完全に排除し、ブラウザのローカルストレージのみで動作する安定版へ移行。起動時のエラーを防ぐためイベントリスナーによる安全な初期化を実装。" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
 
     // --- 軽量で安全な「たまに横切るお馬さん」演出 ---
     function spawnCrossingHorse() {
-      // 毎回新しい要素を作ることで、アニメーションのリセットバグを防ぐ
       const horse = document.createElement('div');
       horse.className = 'horse-crossing drop-shadow-md';
       horse.innerText = '🐎💨';
       
-      const top = Math.floor(Math.random() * 70) + 10; // 10vh ~ 80vh
+      const top = Math.floor(Math.random() * 70) + 10;
       horse.style.top = `${top}vh`;
       
       const goRight = Math.random() > 0.5;
-      const duration = Math.random() * 2 + 2; // 2秒 〜 4秒で横切る
+      const duration = Math.random() * 2 + 2; 
 
-      // アニメーションの割り当て
       if (goRight) {
         horse.style.animation = `crossRight ${duration}s linear forwards`;
       } else {
@@ -366,17 +364,13 @@
 
       document.body.appendChild(horse);
 
-      // アニメーションが終わったら要素を削除して、次のタイマーをセット
       horse.addEventListener('animationend', () => {
         horse.remove();
-        const nextDelay = (Math.random() * 10000) + 5000; // 5秒〜15秒後
+        const nextDelay = (Math.random() * 10000) + 5000;
         setTimeout(spawnCrossingHorse, nextDelay);
       });
     }
 
-    // 初回起動
-    setTimeout(spawnCrossingHorse, 3000);
-    
     // --- わちゃわちゃ演出：クリックエフェクト ---
     document.addEventListener('click', (e) => {
       const emoji = document.createElement('div');
@@ -401,9 +395,7 @@
       const end = Date.now() + duration;
 
       (function frame() {
-        // 左から
         confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'] });
-        // 右から
         confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'] });
         if (Date.now() < end) requestAnimationFrame(frame);
       }());
@@ -415,26 +407,8 @@
       set: (key, val) => { try { localStorage.setItem(key, val); } catch (e) { window['_safe_' + key] = val; } }
     };
 
-    let auth = null;
-    let db = null;
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-    try {
-      const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-      if (configStr) {
-        const firebaseConfig = JSON.parse(configStr);
-        if (Object.keys(firebaseConfig).length > 0) {
-          const firebaseApp = initializeApp(firebaseConfig);
-          auth = getAuth(firebaseApp);
-          db = getFirestore(firebaseApp);
-        }
-      }
-    } catch(e) {
-      console.log("Firebase not configured. Using safe local storage.");
-    }
-
     const state = {
-      user: null, races: [], selectedRaceId: '', localHorses: [], appApiKey: '', unsubscribeFirestore: null
+      races: [], selectedRaceId: '', localHorses: [], appApiKey: ''
     };
 
     const appLogger = {
@@ -478,8 +452,9 @@
         safeStorage.set('umakatsu_api_key', key);
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
-        lucide.createIcons();
-        if (state.user) startFirestoreSync();
+        
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        loadLocalData();
       },
 
       changeRace: (raceId) => {
@@ -494,13 +469,13 @@
         const newNumber = state.localHorses.length > 0 ? Math.max(...state.localHorses.map(h => h.number)) + 1 : 1;
         const newHorse = { id: Date.now(), number: newNumber, name: `追加馬${newNumber}`, odds: 10.0, speed: 70, jockey: 5, condition: 3, suitability: 3 };
         state.localHorses.push(newHorse);
-        saveToFirestore();
+        saveData();
         renderUI();
       },
 
       removeHorse: (id) => {
         state.localHorses = state.localHorses.filter(h => h.id !== id);
-        saveToFirestore();
+        saveData();
         renderUI();
       },
 
@@ -509,26 +484,24 @@
         if (field === 'name') value = String(value);
         else value = Number(value);
         state.localHorses = state.localHorses.map(h => h.id === id ? { ...h, [field]: value } : h);
-        saveToFirestore();
+        saveData();
         app.renderRankings(false);
       },
 
       renderRankings: (playEffect = false) => {
         renderRankingPanel(playEffect);
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
       },
 
       researchAI: async () => {
-        if (!state.user) return;
-        
         const btn = document.getElementById('aiBtn');
         btn.disabled = true;
         btn.classList.add('opacity-80');
         btn.innerHTML = `<span class="horse-dash text-3xl mr-2 drop-shadow-md">🐴💨</span> <span class="font-black text-yellow-300">猛ダッシュ調査中...!!</span>`;
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V2 差分更新)を開始しました');
+          appLogger.log('info', 'AI調査処理(V3 差分更新)を開始しました');
           
           let requestKey = state.appApiKey;
           let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
@@ -638,7 +611,7 @@
           
           if (text) {
             btn.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 mr-2 animate-spin"></i> 保存中...`;
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
             
             const jsonMatch = text.match(/\{[\s\S]*\}/);
             if (!jsonMatch) throw new Error("解析可能なデータが見つかりませんでした");
@@ -648,21 +621,14 @@
             if (parsed && parsed.races) {
               let lastId = state.selectedRaceId;
               for (const race of parsed.races) {
-                if (db && state.user) {
-                  const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', race.raceId);
-                  await setDoc(raceRef, race, { merge: true });
-                } else {
-                  const existingIdx = state.races.findIndex(r => r.raceId === race.raceId);
-                  if (existingIdx >= 0) state.races[existingIdx] = { ...state.races[existingIdx], ...race };
-                  else state.races.push(race);
-                }
+                const existingIdx = state.races.findIndex(r => r.raceId === race.raceId);
+                if (existingIdx >= 0) state.races[existingIdx] = { ...state.races[existingIdx], ...race };
+                else state.races.push(race);
                 lastId = race.raceId;
               }
 
-              if (!db) {
-                state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
-                safeStorage.set('umakatsu_races', JSON.stringify(state.races));
-              }
+              state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
+              safeStorage.set('umakatsu_races', JSON.stringify(state.races));
 
               if (lastId) {
                 app.changeRace(lastId);
@@ -679,95 +645,38 @@
           btn.disabled = false;
           btn.classList.remove('opacity-80');
           btn.innerHTML = `<i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>`;
-          lucide.createIcons();
+          if (typeof lucide !== 'undefined') lucide.createIcons();
         }
       }
     };
 
     document.getElementById('loginForm').addEventListener('submit', app.login);
 
-    const initAuth = async () => {
-      const savedKey = safeStorage.get('umakatsu_api_key');
-      if (savedKey) {
-        document.getElementById('apiKeyInput').value = savedKey;
-        app.login();
-      }
-
-      if (!auth) {
-        state.user = { uid: 'local_user' };
-        startFirestoreSync();
-        return;
-      }
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) {
-        console.error("Auth error:", err);
-      }
-    };
-
-    if (auth) {
-      onAuthStateChanged(auth, (user) => {
-        state.user = user;
-        if (state.user) startFirestoreSync();
-      });
-    }
-
-    initAuth();
-    lucide.createIcons();
-
-    function startFirestoreSync() {
-      if (!db) {
-        const saved = safeStorage.get('umakatsu_races');
-        if (saved) state.races = JSON.parse(saved);
-        
-        if (state.selectedRaceId) {
-          const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
-          if (currentRace) state.localHorses = currentRace.horses || [];
-        }
-        renderSelect();
-        renderUI();
-        return;
-      }
-
-      if (state.unsubscribeFirestore) state.unsubscribeFirestore();
-      
-      const racesRef = collection(db, 'artifacts', appId, 'users', state.user.uid, 'races');
-      state.unsubscribeFirestore = onSnapshot(query(racesRef), (snapshot) => {
-        const raceData = [];
-        snapshot.forEach(doc => raceData.push({ id: doc.id, ...doc.data() }));
-        raceData.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
-        state.races = raceData;
-        
-        if (state.selectedRaceId) {
-          const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
-          if (currentRace) state.localHorses = currentRace.horses || [];
-        }
-        renderSelect();
-        renderUI();
-      }, (error) => {
-        console.error("Firestore error:", error);
-        showToast("同期に失敗しました", "error");
-      });
-    }
-
-    async function saveToFirestore() {
-      if (!state.selectedRaceId) return;
-      if (db && state.user) {
-        try {
-          const raceRef = doc(db, 'artifacts', appId, 'users', state.user.uid, 'races', state.selectedRaceId);
-          await setDoc(raceRef, { horses: state.localHorses }, { merge: true });
-        } catch (e) {
-          showToast("保存エラー", "error");
-        }
+    // 完全ローカルデータの読み込み
+    function loadLocalData() {
+      const saved = safeStorage.get('umakatsu_races');
+      if (saved) {
+        state.races = JSON.parse(saved);
       } else {
-        const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
-        if (raceIdx >= 0) state.races[raceIdx].horses = state.localHorses;
-        safeStorage.set('umakatsu_races', JSON.stringify(state.races));
+        state.races = [];
       }
+      
+      if (state.selectedRaceId) {
+        const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
+        if (currentRace) state.localHorses = currentRace.horses || [];
+      }
+      renderSelect();
+      renderUI();
+    }
+
+    // 完全ローカルデータへの保存
+    function saveData() {
+      if (!state.selectedRaceId) return;
+      const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
+      if (raceIdx >= 0) {
+        state.races[raceIdx].horses = state.localHorses;
+      }
+      safeStorage.set('umakatsu_races', JSON.stringify(state.races));
     }
 
     function getNumberColor(num) {
@@ -835,7 +744,7 @@
       });
 
       renderRankingPanel();
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function renderRankingPanel(playEffect = false) {
@@ -953,6 +862,22 @@
       clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
     }
+
+    // 起動時の初期化を安全に行う（Firebaseなし）
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedKey = safeStorage.get('umakatsu_api_key');
+      if (savedKey) {
+        document.getElementById('apiKeyInput').value = savedKey;
+        app.login(); // キーがあれば自動ログイン
+      }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+
+    // 画面の描画が完全に終わってから安全にお馬さんを走らせる
+    window.addEventListener('load', () => {
+        setTimeout(spawnCrossingHorse, 3000);
+    });
+
   </script>
 </body>
 </html>

@@ -211,7 +211,6 @@
         }
     }
 
-    // グローバル関数として登録（HTMLからonclickで呼べるようにするため）
     window.downloadLogsCSV = function() {
         let csv = '\uFEFF'; 
         csv += '"Time","Level","Message","Details"\n'; 
@@ -266,7 +265,6 @@
       addLog("WARN", "Firebase not configured. Using LocalStorage.", e.message);
     }
 
-    // 状態管理
     const state = {
       user: null,
       races: [],
@@ -392,6 +390,7 @@
         
         btn.disabled = true;
         btn.classList.add('opacity-50');
+        // 調査中の見た目に変更
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i><span>AIモデル選定と調査準備中...</span>`;
         errorContainer.classList.add('hidden'); // 開始時にエラーを隠す
         lucide.createIcons();
@@ -424,7 +423,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
-                  tools: [{ googleSearch: {} }], // ★ここが間違えてエラーになっていました（google_search -> googleSearch）
+                  // ★修正点：google_search -> googleSearch が正しいプロパティ名です
+                  tools: [{ googleSearch: {} }], 
                   systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONスキーマのみを出力してください。" }]},
                   generationConfig: { 
                     responseMimeType: "application/json",
@@ -510,6 +510,7 @@
           `;
           errorContainer.classList.remove('hidden');
         } finally {
+          // ★修正点：エラー時でも必ず元のボタンの見た目に戻るように修正
           btn.disabled = false;
           btn.classList.remove('opacity-50');
           btn.innerHTML = `<i data-lucide="bot" class="w-4 h-4 mr-2"></i><span>アナリストAIに精密調査を依頼</span>`;

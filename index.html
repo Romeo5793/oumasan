@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V7.4</title>
+  <title>お馬さんトレジャー V8.0</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V7.4">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -158,17 +158,8 @@
     <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col">
       <h3 class="font-black text-red-600 mb-2 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> エラーログ</h3>
       <p class="text-sm font-bold text-gray-800 mb-3">動作中に問題が発生しました。以下のログをご確認ください。</p>
-      <textarea id="errorLogText" class="w-full h-48 text-xs bg-gray-50 border border-gray-300 rounded-xl p-3 mb-4 font-mono outline-none text-gray-900 custom-scrollbar" readonly></textarea>
-      
-      <!-- CSV保存ボタンを追加 -->
-      <div class="flex justify-end gap-3">
-        <button onclick="appLogger.downloadCSV()" class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl active:scale-95 transition-all flex items-center shadow-md">
-            <i data-lucide="download" class="w-5 h-5 mr-1"></i> CSVで保存
-        </button>
-        <button onclick="document.getElementById('errorLogModal').classList.add('hidden')" class="px-4 py-3 bg-gray-800 hover:bg-black text-white font-bold rounded-xl active:scale-95 transition-all shadow-md">
-            閉じる
-        </button>
-      </div>
+      <textarea id="errorLogText" class="w-full h-48 text-xs bg-gray-50 border border-gray-300 rounded-xl p-3 mb-4 font-mono outline-none text-gray-900" readonly></textarea>
+      <button onclick="document.getElementById('errorLogModal').classList.add('hidden')" class="px-4 py-3 bg-gray-800 hover:bg-black text-white font-bold rounded-xl active:scale-95 transition-all">閉じる</button>
     </div>
   </div>
 
@@ -182,7 +173,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V7.4</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.0</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -229,7 +220,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V7.4</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.0</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -356,8 +347,7 @@
       { date: "2026-06-21", detail: "【改善】AIプロンプトをG3を含めた全重賞・主要レース網羅に変更し、横スクロールのタブ型UI切り替え機能を実装(V7)" },
       { date: "2026-06-21", detail: "【バグ修正(V7.1)】誤って混入したコードによる構文エラーとカッコのズレを修正し、アプリが起動しない不具合を解決しました" },
       { date: "2026-06-21", detail: "【バグ修正(V7.2)】AI調査が数分間進まなくなる問題に対応。通信のタイムアウト(45秒)設定と、エラー発生時に自動でログ画面を表示して原因を究明しやすくする機能を実装しました" },
-      { date: "2026-06-21", detail: "【バグ修正(V7.3)】API利用制限(429)とモデル不在(404)エラーに対応し、指数的バックオフ（自動再試行）機能と、代替モデルへの確実なフォールバックを実装しました" },
-      { date: "2026-06-21", detail: "【根本治療(V7.4)】ユーザー固有のAPIキーを利用した際に、固定モデル名による404エラーが発生する問題の根本治療として、動的に利用可能なモデル一覧を取得し最適なモデルを選定する機能を復活。あわせてエラーログのCSVダウンロード機能をUIに実装しました。" }
+      { date: "2026-06-21", detail: "【根本治療(V8.0)】AIがG1しか取得しない問題を解決するため、プロンプトを「全レース対象」に強制。また、調査サイトの表記揺れによる同日付・類似名レースの重複を防ぐため完全統合と再評価を指示する厳格なルールを追加。" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -427,36 +417,30 @@
       logs: [],
       log: function(level, message, details = {}) {
         const time = new Date().toISOString();
-        // オブジェクトの場合はJSON文字列に変換
-        const detailStr = typeof details === 'object' ? JSON.stringify(details) : String(details);
-        this.logs.push({ time, level, message, details: detailStr });
+        this.logs.push({ time, level, message, details: JSON.stringify(details) });
         console[level === 'error' ? 'error' : 'log'](`[${level.toUpperCase()}] ${message}`, details);
       },
-      showModal: function(text) {
-        document.getElementById('errorLogText').value = text;
+      showModal: function(csvText) {
+        document.getElementById('errorLogText').value = csvText;
         document.getElementById('errorLogModal').classList.remove('hidden');
       },
       downloadCSV: function() {
-        if (this.logs.length === 0) {
-            showToast("保存するログがありません", "info");
-            return;
-        }
+        if (this.logs.length === 0) return;
         const header = "Time,Level,Message,Details\n";
-        const csvContent = this.logs.map(l => `"${l.time}","${l.level}","${l.message}","${(l.details || '').replace(/"/g, '""')}"`).join("\n");
+        const csvContent = this.logs.map(l => `"${l.time}","${l.level}","${l.message}","${l.details.replace(/"/g, '""')}"`).join("\n");
         const fullCsv = header + csvContent;
+        this.showModal(fullCsv);
         try {
           const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `umakatsu_error_log_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+          link.download = `umakatsu_error_log_${new Date().getTime()}.csv`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          showToast("CSVを保存しました！", "success");
         } catch (e) {
-          console.warn("直接ダウンロードが制限されています。");
-          showToast("保存に失敗しました", "error");
+          console.warn("直接ダウンロードが制限されています。モーダル画面のログを確認してください。");
         }
       }
     };
@@ -520,52 +504,24 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V7.4 差分更新)を開始しました');
+          appLogger.log('info', 'AI調査処理(V8.0 全レース取得＆完全統合)を開始しました');
           
           let requestKey = state.appApiKey;
-          let candidateModelsNames = []; 
+          let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
           
-          // demo と入力した場合、または空文字の場合はプレビュー専用モデルを強制
-          if (requestKey.toLowerCase() === "demo" || requestKey === apiKey || requestKey === "") {
+          if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
             candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"];
-          } else {
-            // ユーザー独自のAPIキーの場合、利用可能なモデル一覧を動的に取得（根本治療）
-            try {
-              appLogger.log('info', '利用可能なAIモデル一覧を取得中...');
-              const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`);
-              if (listRes.ok) {
-                const listData = await listRes.json();
-                candidateModelsNames = (listData.models || [])
-                  .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
-                  .map(m => m.name.replace('models/', ''))
-                  // Pro、Lite、Vision等を除外して軽量・高速なモデルを抽出
-                  .filter(name => name.includes('gemini') && !name.includes('pro') && !name.includes('lite') && !name.includes('vision'));
-                
-                // バージョンが新しい順（2.5 -> 1.5 等）にソート
-                candidateModelsNames.sort((a, b) => b.localeCompare(a));
-                appLogger.log('info', `利用可能なモデルを取得しました: ${candidateModelsNames.join(', ')}`);
-              } else {
-                 appLogger.log('warn', 'モデル一覧の取得に失敗しました。デフォルトリストを使用します。');
-              }
-            } catch(e) {
-               appLogger.log('warn', 'モデル一覧取得時の通信エラー。デフォルトリストを使用します。', e.message);
-            }
-
-            // 万が一取得できなかった場合のフォールバックリスト
-            if (candidateModelsNames.length === 0) {
-               candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"];
-            }
           }
 
           const prompt = `
             あなたはプロの競馬データアナリストです。
             現在のデータ: ${JSON.stringify(state.races)}
             
-            今週末のJRA重賞および主要レースの最新出馬表をGoogle検索で調査し、以下のルールでデータを更新してください。
-            1. レース名が類似している場合は同一レースと判断し、重複させずに1つのレース情報に統合してください。
-            2. 出走馬は省略せず、出馬表に記載されている【全頭】を必ず含めてください。
-            3. 各馬のスピード、騎手、調子、適性を最新状況から評価し算出してください。
+            今週末に開催される【全レース】（G1などの重賞だけでなく、G2、G3、オープン、条件戦、平場なども含むすべてのレース）の最新出馬表をGoogle検索で徹底的に調査し、以下のルールでデータを更新してください。
+            
+            1. 【絶対ルール：レースの統合】同日付でレース名が類似しているもの（例：「〇〇記念」と「第X回〇〇記念」など、調査サイトによる表記揺れ）は、絶対に別のレースとして分けず、1つのレースデータとして完全に統合してください。
+            2. 【絶対ルール：お馬さんの網羅と評価】統合したレースデータに対して、出馬表に記載されている出走馬【全頭】を漏れなく含めてください。その上で、各馬のスピード、騎手、調子、適性を最新状況から評価し算出してください。
             
             出力は以下のJSON構造に厳密に従い、Markdownのコードブロックを含めず純粋なJSONのみ出力してください。
             {"races": [{"raceId": "日付_レース名", "raceName": "文字列", "date": "YYYY-MM-DD", "track": "文字列", "distance": "文字列", "horses": [{"id": 1, "number": 1, "name": "文字列", "odds": 1.0, "speed": 50, "jockey": 5, "condition": 3, "suitability": 3}]}]}
@@ -575,82 +531,49 @@
           let data;
           let targetModel = "";
 
-          // 各モデルに対して順番に試行
           for (let modelName of candidateModelsNames) {
             targetModel = modelName;
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
             
-            let modelSuccess = false;
-            // 指数的バックオフの設定 (1秒, 2秒, 4秒, 8秒, 16秒)
-            const retryDelays = [1000, 2000, 4000, 8000, 16000];
+            try {
+              appLogger.log('info', `${targetModel} にリクエストを送信中...`);
+              
+              // タイムアウト設定 (45秒)
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 45000);
 
-            for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
-              try {
-                if (attempt === 0) {
-                  appLogger.log('info', `${targetModel} にリクエストを送信中...`);
-                } else {
-                  appLogger.log('warn', `${targetModel} に再試行中... (${attempt}回目)`);
-                }
-                
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 45000);
-
-                const res = await fetch(url, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    tools: [{ google_search: {} }],
-                    systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
-                  }),
-                  signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (res.ok) {
-                  data = await res.json();
-                  appLogger.log('info', `${targetModel} からの応答を受信しました(試行 ${attempt + 1}回目)`);
-                  modelSuccess = true;
-                  break; // リトライループを抜ける
-                } else {
-                  const errText = await res.text();
-                  if (res.status === 429 && attempt < retryDelays.length) {
-                    appLogger.log('warn', `API制限(429)を検知。${retryDelays[attempt]/1000}秒待機して再試行します...`);
-                    await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
-                    continue; // 次の再試行へ
-                  } else {
-                    appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
-                    break; // 429以外のエラー、または再試行の上限に達した場合は次のモデルへフォールバック
-                  }
-                }
-              } catch (e) {
-                if (e.name === 'AbortError') {
-                   appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
-                   break; // タイムアウトしたら次のモデルへ
-                } else {
-                   if (attempt < retryDelays.length) {
-                     appLogger.log('warn', `通信エラーを検知。${retryDelays[attempt]/1000}秒待機して再試行します...`, e.message);
-                     await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
-                     continue;
-                   } else {
-                     appLogger.log('error', `${targetModel} の通信エラー (上限到達)`, e.message);
-                     break; // 再試行上限到達なら次のモデルへ
-                   }
-                }
+              const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                  tools: [{ google_search: {} }],
+                  systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
+                }),
+                signal: controller.signal
+              });
+              
+              clearTimeout(timeoutId);
+              
+              if (res.ok) {
+                data = await res.json();
+                appLogger.log('info', `${targetModel} からの応答を受信しました`);
+                success = true;
+                break;
+              } else {
+                const errText = await res.text();
+                appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
               }
-            } // リトライループ終了
-
-            // このモデルで成功した場合は、他のモデルは試さない
-            if (modelSuccess) {
-              success = true;
-              break;
+            } catch (e) {
+              if (e.name === 'AbortError') {
+                 appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
+              } else {
+                 appLogger.log('error', `${targetModel} の通信エラー`, e.message);
+              }
             }
           }
 
-          if (!success) {
-            throw new Error("APIの利用制限(無料枠の上限)に達したか、利用可能なモデルがありません。「demo」と入力してテストモードを使用するか、少し時間を置いて再度お試しください。");
-          }
+          if (!success) throw new Error("利用可能なすべてのAIモデルで調査に失敗しました。タイムアウトか、API制限の可能性があります。");
 
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!text) {
@@ -690,6 +613,7 @@
           appLogger.log('error', '処理中に予期せぬエラーが発生しました', e.message);
           showToast(e.message || "エラーが発生しました。", "error");
           
+          // エラー詳細をユーザーに知らせるため、ログモーダルを自動表示する
           const logText = appLogger.logs.map(l => `[${l.time}] ${l.level.toUpperCase()}: ${l.message} \n詳細: ${l.details}`).join("\n\n");
           appLogger.showModal(logText);
         } finally {
@@ -929,9 +853,6 @@
       if (type === 'error') {
         toast.style.backgroundColor = '#fee2e2';
         toast.style.color = '#991b1b';
-      } else if (type === 'success') {
-        toast.style.backgroundColor = '#059669';
-        toast.style.color = '#ffffff';
       } else {
         toast.style.backgroundColor = '#1f2937';
         toast.style.color = '#ffffff';

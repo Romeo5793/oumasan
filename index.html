@@ -493,7 +493,9 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
       },
 
-      researchAI: async () => {
+      
+          if (!success || !data) throw new Error("利用可能なすべてのモデルで調査に失敗しました。");
+researchAI: async () => {
         const btn = document.getElementById('aiBtn');
         btn.disabled = true;
         btn.classList.add('opacity-80');
@@ -509,160 +511,83 @@
           if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
             candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"];
-            appLogger.log('info', 'プレビュー環境の固定モデルを使用します。');
-          } else {
-            appLogger.log('info', '利用可能なモデルリストを取得し、最適なモデルを選択します...');
-            try {
-              const modelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`;
-              const modelsRes = await fetch(modelsUrl);
-              
-              if (modelsRes.ok) {
-                const modelsData = await modelsRes.json();
-                const candidateModels = modelsData.models.filter(m => 
-                  m.supportedGenerationMethods.includes("generateContent") &&
-                  m.name.toLowerCase().includes("gemini") &&
-                  !m.name.toLowerCase().includes("pro") &&
-                  !m.name.toLowerCase().includes("lite") &&
-                  !m.name.toLowerCase().includes("vision") &&
-                  !m.name.toLowerCase().includes("thinking")
-                );
-                
-                if (candidateModels.length > 0) {
-                  candidateModels.sort((a, b) => {
-                    const getVer = name => parseFloat(name.match(/\d+\.\d+/) || [0]);
-                    const vA = getVer(a.name);
-                    const vB = getVer(b.name);
-                    if (vA !== vB) return vB - vA;
-                    return a.name.length - b.name.length;
-                  });
-                  candidateModelsNames = candidateModels.map(m => m.name.split('/').pop());
-                  appLogger.log('info', `自動取得したモデル候補リスト: ${candidateModelsNames.join(', ')}`);
-                }
-              }
-            } catch (e) {
-              appLogger.log('error', 'モデル一覧取得通信エラー', { error: e.message });
-            }
           }
 
-         const prompt = `
-            あなたはプロの競馬データアナリストです。本日の日付は ${new Date().toLocaleDateString('ja-JP')} です。
-            以下の【現在のデータ】は過去の参照用としてのみ扱い、これに囚われず、Google検索を用いて【今週末開催のJRA重賞および主要レースの最新出馬表】を完全に新しく調査し、データを再構築してください。
-
-            【現在のデータ (参考用)】
-            ${JSON.stringify(state.races)}
-
-            【調査・更新ルール】
-            1. 【最新データの優先】検索結果から得られた最新の出馬表（馬番・馬名・最新オッズ）を正確に取得し、現在のデータに関わらず、最新の情報をJSONに反映させてください。
-            2. 【網羅性】今週末の重賞レース（G1, G2, G3）およびメインレースをすべて洗い出し、最新のJSONを作成してください。
-            3. 【正確な評価】各馬のパラメータ（speed, jockey, condition, suitability）は、現在の最新の馬体、調教、戦績データを基にプロの視点で評価・算出してください。
-            4. 【完全網羅】出走馬は、出馬表に記載されている【全頭】を必ず含めてください。一部の馬だけを抽出せず、すべての馬のデータをJSONのhorses配列に入れてください。
-            5. 【統合】レース名や日付が類似している場合は同一レースと判断し、重複させずに1つのレース情報に統合してください。
+          const prompt = `
+            あなたはプロの競馬データアナリストです。
+            現在のデータ: ${JSON.stringify(state.races)}
             
-            【重要】出力は以下のJSON構造に厳密に従い、Markdownのコードブロックを含めず純粋なJSONのみ出力してください。
+            今週末のJRA重賞および主要レースの最新出馬表をGoogle検索で調査し、以下のルールでデータを更新してください。
+            1. レース名が類似している場合は同一レースと判断し、重複させずに1つのレース情報に統合してください。
+            2. 出走馬は省略せず、出馬表に記載されている【全頭】を必ず含めてください。
+            3. 各馬のスピード、騎手、調子、適性を最新状況から評価し算出してください。
+            
+            出力は以下のJSON構造に厳密に従い、Markdownのコードブロックを含めず純粋なJSONのみ出力してください。
             {"races": [{"raceId": "日付_レース名", "raceName": "文字列", "date": "YYYY-MM-DD", "track": "文字列", "distance": "文字列", "horses": [{"id": 1, "number": 1, "name": "文字列", "odds": 1.0, "speed": 50, "jockey": 5, "condition": 3, "suitability": 3}]}]}
           `;
-            【現在のデータ (参考用)】
-            ${JSON.stringify(state.races)}
 
-            【調査・更新ルール】
-            1. 【最新データの優先】検索結果から得られた最新の出馬表（馬番・馬名・最新オッズ）を正確に取得し、現在のデータに関わらず、最新の情報をJSONに反映させてください。
-            2. 【網羅性】今週末の重賞レース（G1, G2, G3）およびメインレースをすべて洗い出し、最新のJSONを作成してください。
-            3. 【正確な評価】各馬のパラメータ（speed, jockey, condition, suitability）は、現在の最新の馬体、調教、戦績データを基にプロの視点で評価・算出してください。
-            4. 【フォーマット】過去のレースIDや構成に引きずられず、最新のレース内容を正しく反映したJSONを出力してください。
-            5.　JRAの公式サイトでレース情報や出馬表を取得する
-            6.　保存データも含め、レース名が類似している場合はデータを統合して表示・評価する
-
-"【重要】出走馬は、出馬表に記載されている【全頭】を必ず含めてください。一部の馬だけを抽出するのではなく、レースに出走するすべての馬のデータをJSONのhorses配列に入れてください。"【重要】出力は以下のJSON構造に厳密に従い、Markdownのコードブロックを含めず純粋なJSONのみ出力してください。
-            {"races": [{"raceId": "文字列", "raceName": "文字列", "date": "文字列", "track": "文字列", "distance": "文字列", "horses": [{"id": 1, "number": 1, "name": "文字列", "odds": 1.0, "speed": 50, "jockey": 5, "condition": 3, "suitability": 3}]}]}
-          `;
-
-          let res;
-          let data;
           let success = false;
+          let data;
           let targetModel = "";
 
-          for (let modelIdx = 0; modelIdx < candidateModelsNames.length; modelIdx++) {
-            targetModel = candidateModelsNames[modelIdx];
-            appLogger.log('info', `【試行モデル】: ${targetModel}`);
+          for (let modelName of candidateModelsNames) {
+            targetModel = modelName;
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
-            const delays = [1000, 2000, 4000];
             
-            for (let i = 0; i < delays.length; i++) {
-              try {
-                res = await fetch(url, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    tools: [{ google_search: {} }], 
-                    systemInstruction: { parts: [{ text: "プロのアナリストとして、指示された正確なJSONフォーマットのみを出力してください。その他の挨拶や解説文は一切不要です。" }]}
-                  })
-                });
-                
-                if (res.ok) {
-                  data = await res.json();
-                  success = true;
-                  break;
-                } else {
-                  appLogger.log('error', `API通信エラー`, { status: res.status });
-                  if (res.status === 400 || res.status === 404 || res.status === 429) break; 
-                }
-              } catch (e) {
-                appLogger.log('error', `API例外`, { error: e.message });
+            try {
+              const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                  tools: [{ google_search: {} }],
+                  systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
+                })
+              });
+              
+              if (res.ok) {
+                data = await res.json();
+                success = true;
+                break;
               }
-              if (!success && i < delays.length - 1) await new Promise(r => setTimeout(r, delays[i]));
+            } catch (e) {
+              console.error(e);
             }
-            if (success) break;
           }
 
-          if (!success || !data) throw new Error("利用可能なすべてのモデルで調査に失敗しました。");
+          if (!success) throw new Error("調査に失敗しました。");
 
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) throw new Error("データ形式エラー");
+
+          const parsed = JSON.parse(jsonMatch[0]);
           
-          if (text) {
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 mr-2 animate-spin"></i> 保存中...`;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-            
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) throw new Error("解析可能なデータが見つかりませんでした");
-
-            const parsed = JSON.parse(jsonMatch[0]);
-            
-            if (parsed && parsed.races) {
-              let lastId = state.selectedRaceId;
-              for (const race of parsed.races) {
-                const existingIdx = state.races.findIndex(r => r.raceId === race.raceId);
-                if (existingIdx >= 0) state.races[existingIdx] = { ...state.races[existingIdx], ...race };
-                else state.races.push(race);
-                lastId = race.raceId;
+          if (parsed && parsed.races) {
+            parsed.races.forEach(newRace => {
+              const existingIdx = state.races.findIndex(r => r.raceName === newRace.raceName);
+              if (existingIdx >= 0) {
+                state.races[existingIdx] = { ...state.races[existingIdx], ...newRace };
+              } else {
+                state.races.push(newRace);
               }
+            });
 
-              state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
-              safeStorage.set('umakatsu_races', JSON.stringify(state.races));
-
-              renderRaceNavigation(); 
-
-              if (lastId) {
-                app.changeRace(lastId);
-                document.getElementById('raceSelect').value = lastId;
-                
-                showToast(`最新データで差分調査＆更新が完了しました！（使用AI: ${targetModel}）`, "success");
-                firePartyConfetti();
-              }
-            }
+            state.races.sort((a, b) => new Date(b.date) - new Date(a.date));
+            safeStorage.set('umakatsu_races', JSON.stringify(state.races));
+            renderRaceNavigation();
+            showToast("更新完了！", "success");
+            firePartyConfetti();
           }
         } catch (e) {
           showToast(e.message, "error");
-          appLogger.log('error', e.message);
-          appLogger.downloadCSV();
         } finally {
           btn.disabled = false;
           btn.classList.remove('opacity-80');
           btn.innerHTML = `<i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>`;
           if (typeof lucide !== 'undefined') lucide.createIcons();
         }
-      }
-    };
+      },    };
 
     document.getElementById('loginForm').addEventListener('submit', app.login);
 

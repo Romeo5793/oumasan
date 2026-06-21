@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V7.1</title>
+  <title>お馬さんトレジャー V7.3</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V7.2">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V7.3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -173,7 +173,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V7.2</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V7.3</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -220,7 +220,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V7.2</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V7.3</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -346,7 +346,8 @@
       { date: "2026-06-21", detail: "【改善】AIのプロンプトを調整し、「今週末の新規レースの追加」を最優先で調査するように指示を強化(V6)" },
       { date: "2026-06-21", detail: "【改善】AIプロンプトをG3を含めた全重賞・主要レース網羅に変更し、横スクロールのタブ型UI切り替え機能を実装(V7)" },
       { date: "2026-06-21", detail: "【バグ修正(V7.1)】誤って混入したコードによる構文エラーとカッコのズレを修正し、アプリが起動しない不具合を解決しました" },
-      { date: "2026-06-21", detail: "【バグ修正(V7.2)】AI調査が数分間進まなくなる問題に対応。通信のタイムアウト(45秒)設定と、エラー発生時に自動でログ画面を表示して原因を究明しやすくする機能を実装しました" }
+      { date: "2026-06-21", detail: "【バグ修正(V7.2)】AI調査が数分間進まなくなる問題に対応。通信のタイムアウト(45秒)設定と、エラー発生時に自動でログ画面を表示して原因を究明しやすくする機能を実装しました" },
+      { date: "2026-06-21", detail: "【バグ修正(V7.3)】API利用制限(429)とモデル不在(404)エラーに対応し、指数的バックオフ（自動再試行）機能と、代替モデルへの確実なフォールバックを実装しました" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -503,12 +504,14 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V7.2 差分更新)を開始しました');
+          appLogger.log('info', 'AI調査処理(V7.3 差分更新)を開始しました');
           
           let requestKey = state.appApiKey;
-          let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
+          // フォールダウンモデルのリストを修正。Canvas環境で確実に動くモデルを最後尾に追加。
+          let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash-latest", "gemini-2.5-flash-preview-09-2025"]; 
           
-          if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
+          // demo と入力した場合、または空文字の場合はプレビュー専用モデルを強制
+          if (requestKey.toLowerCase() === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
             candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"];
           }
@@ -530,49 +533,82 @@
           let data;
           let targetModel = "";
 
+          // 各モデルに対して順番に試行
           for (let modelName of candidateModelsNames) {
             targetModel = modelName;
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
             
-            try {
-              appLogger.log('info', `${targetModel} にリクエストを送信中...`);
-              
-              // タイムアウト設定 (45秒)
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 45000);
+            let modelSuccess = false;
+            // 指数的バックオフの設定 (1秒, 2秒, 4秒, 8秒, 16秒)
+            const retryDelays = [1000, 2000, 4000, 8000, 16000];
 
-              const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: prompt }] }],
-                  tools: [{ google_search: {} }],
-                  systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
-                }),
-                signal: controller.signal
-              });
-              
-              clearTimeout(timeoutId);
-              
-              if (res.ok) {
-                data = await res.json();
-                appLogger.log('info', `${targetModel} からの応答を受信しました`);
-                success = true;
-                break;
-              } else {
-                const errText = await res.text();
-                appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
+            for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
+              try {
+                if (attempt === 0) {
+                  appLogger.log('info', `${targetModel} にリクエストを送信中...`);
+                } else {
+                  appLogger.log('warn', `${targetModel} に再試行中... (${attempt}回目)`);
+                }
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+                const res = await fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ google_search: {} }],
+                    systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
+                  }),
+                  signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (res.ok) {
+                  data = await res.json();
+                  appLogger.log('info', `${targetModel} からの応答を受信しました(試行 ${attempt + 1}回目)`);
+                  modelSuccess = true;
+                  break; // リトライループを抜ける
+                } else {
+                  const errText = await res.text();
+                  if (res.status === 429 && attempt < retryDelays.length) {
+                    appLogger.log('warn', `API制限(429)を検知。${retryDelays[attempt]/1000}秒待機して再試行します...`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+                    continue; // 次の再試行へ
+                  } else {
+                    appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
+                    break; // 429以外のエラー、または再試行の上限に達した場合は次のモデルへフォールバック
+                  }
+                }
+              } catch (e) {
+                if (e.name === 'AbortError') {
+                   appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
+                   break; // タイムアウトしたら次のモデルへ
+                } else {
+                   if (attempt < retryDelays.length) {
+                     appLogger.log('warn', `通信エラーを検知。${retryDelays[attempt]/1000}秒待機して再試行します...`, e.message);
+                     await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+                     continue;
+                   } else {
+                     appLogger.log('error', `${targetModel} の通信エラー (上限到達)`, e.message);
+                     break; // 再試行上限到達なら次のモデルへ
+                   }
+                }
               }
-            } catch (e) {
-              if (e.name === 'AbortError') {
-                 appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
-              } else {
-                 appLogger.log('error', `${targetModel} の通信エラー`, e.message);
-              }
+            } // リトライループ終了
+
+            // このモデルで成功した場合は、他のモデルは試さない
+            if (modelSuccess) {
+              success = true;
+              break;
             }
           }
 
-          if (!success) throw new Error("利用可能なすべてのAIモデルで調査に失敗しました。タイムアウトか、API制限の可能性があります。");
+          if (!success) {
+            throw new Error("APIの利用制限(無料枠の上限)に達したか、利用可能なモデルがありません。「demo」と入力してテストモードを使用するか、少し時間を置いて再度お試しください。");
+          }
 
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!text) {
@@ -612,7 +648,6 @@
           appLogger.log('error', '処理中に予期せぬエラーが発生しました', e.message);
           showToast(e.message || "エラーが発生しました。", "error");
           
-          // エラー詳細をユーザーに知らせるため、ログモーダルを自動表示する
           const logText = appLogger.logs.map(l => `[${l.time}] ${l.level.toUpperCase()}: ${l.message} \n詳細: ${l.details}`).join("\n\n");
           appLogger.showModal(logText);
         } finally {

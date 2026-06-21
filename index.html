@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V8.3</title>
+  <title>お馬さんトレジャー V8.4</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.3">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.4">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -177,7 +177,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.3</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.4</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -225,7 +225,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.3</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.4</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -348,7 +348,8 @@
       { date: "2026-06-21", detail: "【根本治療(V8.0)】AIがG1しか取得しない問題を解決するため、プロンプトを「全レース対象」に強制。また、調査サイトの表記揺れによる同日付・類似名レースの重複を防ぐため完全統合と再評価を指示する厳格なルールを追加。" },
       { date: "2026-06-21", detail: "【機能追加(V8.1)】異なるAPIキーをすぐに試せるよう、ヘッダーにログアウト機能を追加。" },
       { date: "2026-06-21", detail: "【根本治療(V8.2)】エラーログ画面にDOM操作で「CSVで保存」ボタンを確実に追加。また、固定名による404エラーを防ぐため「APIからモデル一覧を自動取得・最適なモデルを動的ソートして使用する機能」を完全復活。" },
-      { date: "2026-06-21", detail: "【根本治療(V8.3)】429(Quota Exceeded)エラー検知時、全モデルへの無駄なフォールバックを停止し、API枠の超過を明確にユーザーへ通知する安全機構を追加。" }
+      { date: "2026-06-21", detail: "【根本治療(V8.3)】429(Quota Exceeded)エラー検知時、全モデルへの無駄なフォールバックを停止し、API枠の超過を明確にユーザーへ通知する安全機構を追加。" },
+      { date: "2026-06-21", detail: "【根本治療(V8.4)】連続リクエストによるスパイク制限(429エラー)を防ぐため、モデル一覧をキャッシュ化し通信回数を半減。また、新規キーでのエラー原因（既存プロジェクトとの共有）を案内するようエラー文を強化。" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -520,37 +521,45 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V8.3 全レース取得＆完全統合)を開始しました');
+          appLogger.log('info', 'AI調査処理(V8.4 通信量半減＆全レース取得)を開始しました');
           
           let requestKey = state.appApiKey;
           let candidateModelsNames = []; 
           
-          // モデルを動的に取得する（PRO/Lite除外、Flashモデル優先）
           if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
-            candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"]; // デモ用のフォールバック
+            candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"]; 
           } else {
-            appLogger.log('info', 'APIから利用可能なモデル一覧を自動取得しています...');
-            try {
-              const modelRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`);
-              if(modelRes.ok) {
-                  const modelJson = await modelRes.json();
-                  candidateModelsNames = modelJson.models
-                      .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-                      .map(m => m.name.replace("models/", ""))
-                      .filter(name => !name.toLowerCase().includes("pro") && !name.toLowerCase().includes("lite") && name.includes("flash"))
-                      .sort((a,b) => b.localeCompare(a)); 
-                  
-                  appLogger.log('info', '利用可能なAIモデルを自動取得しました', candidateModelsNames);
-              } else {
-                  appLogger.log('warn', 'モデル一覧の取得に失敗しました。デフォルト設定を使用します。', {status: modelRes.status});
-              }
-            } catch (err) {
-              appLogger.log('warn', 'モデル一覧の取得中に通信エラーが発生しました', err.message);
+            // 【V8.4 根本治療】通信量を半減させるためのモデルキャッシュ機能
+            const cachedModels = safeStorage.get('umakatsu_cached_models_' + requestKey.substring(0, 10));
+            
+            if (cachedModels) {
+                candidateModelsNames = JSON.parse(cachedModels);
+                appLogger.log('info', 'キャッシュからAIモデル一覧を読み込みました（APIリクエスト節約）');
+            } else {
+                appLogger.log('info', 'APIから利用可能なモデル一覧を新規取得しています...');
+                try {
+                  const modelRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`);
+                  if(modelRes.ok) {
+                      const modelJson = await modelRes.json();
+                      candidateModelsNames = modelJson.models
+                          .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+                          .map(m => m.name.replace("models/", ""))
+                          .filter(name => !name.toLowerCase().includes("pro") && !name.toLowerCase().includes("lite") && name.includes("flash"))
+                          .sort((a,b) => b.localeCompare(a)); 
+                      
+                      // 取得成功したらキャッシュに保存
+                      safeStorage.set('umakatsu_cached_models_' + requestKey.substring(0, 10), JSON.stringify(candidateModelsNames));
+                      appLogger.log('info', '利用可能なAIモデルを自動取得し、キャッシュしました', candidateModelsNames);
+                  } else {
+                      appLogger.log('warn', 'モデル一覧の取得に失敗しました。デフォルト設定を使用します。', {status: modelRes.status});
+                  }
+                } catch (err) {
+                  appLogger.log('warn', 'モデル一覧の取得中に通信エラーが発生しました', err.message);
+                }
             }
           }
 
-          // モデル取得失敗時の安全策
           if (!candidateModelsNames || candidateModelsNames.length === 0) {
               candidateModelsNames = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-flash"];
           }
@@ -579,7 +588,6 @@
             try {
               appLogger.log('info', `${targetModel} にリクエストを送信中...`);
               
-              // タイムアウト設定 (45秒)
               const controller = new AbortController();
               const timeoutId = setTimeout(() => controller.abort(), 45000);
 
@@ -605,14 +613,14 @@
                 const errText = await res.text();
                 appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
                 
-                // 429(API制限)の場合は無駄な連続リクエストを止めるための処理
+                // 【V8.4 根本治療】新規キーでエラーになる理由を案内
                 if (res.status === 429) {
-                    throw new Error("🚨 APIキーの利用制限（クォータ）を超過しました。しばらく時間を置くか、ログアウトして別のAPIキーを試してください！");
+                    throw new Error("🚨 APIキーの利用制限に達しました。\n\n【重要】今日作ったばかりのキーでこのエラーが出る場合、既存のプロジェクト内にキーを作成していることが原因です。Google AI Studioで「Create API key in a new project」を選択し、完全に新しいプロジェクトでキーを発行し直してください！");
                 }
               }
             } catch (e) {
               if (e.message.includes("APIキーの利用制限")) {
-                  throw e; // 429エラーを外側へ投げる
+                  throw e; 
               } else if (e.name === 'AbortError') {
                  appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
               } else {
@@ -659,9 +667,8 @@
           }
         } catch (e) {
           appLogger.log('error', '処理中に予期せぬエラーが発生しました', e.message);
-          showToast(e.message || "エラーが発生しました。", "error");
+          showToast("エラーが発生しました。ログを確認してください。", "error");
           
-          // エラー詳細をユーザーに知らせるため、ログモーダルを自動表示する
           const logText = appLogger.logs.map(l => `[${l.time}] ${l.level.toUpperCase()}: ${l.message} \n詳細: ${l.details}`).join("\n\n");
           appLogger.showModal(logText);
         } finally {
@@ -708,16 +715,13 @@
       return colors[(num - 1) % 8] || colors[0];
     }
 
-    // タブとセレクトボックスの両方を描画する新機能
     function renderRaceNavigation() {
       const select = document.getElementById('raceSelect');
       const tabsContainer = document.getElementById('raceTabsContainer');
       const tabs = document.getElementById('raceTabs');
       
-      // プルダウンの更新
       select.innerHTML = '<option value="" disabled ' + (!state.selectedRaceId ? 'selected' : '') + '>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>';
       
-      // タブの更新
       tabs.innerHTML = '';
       if (state.races.length > 0) {
         tabsContainer.classList.remove('hidden');
@@ -728,12 +732,10 @@
       state.races.forEach(r => {
         const isSelected = r.raceId === state.selectedRaceId;
         const dateStr = r.date ? `${r.date} ` : '';
-        const shortDate = r.date ? r.date.split('-').slice(1).join('/') : ''; // MM/DD形式
+        const shortDate = r.date ? r.date.split('-').slice(1).join('/') : ''; 
         
-        // プルダウン用
         select.innerHTML += `<option value="${r.raceId}" ${isSelected ? 'selected' : ''}>${dateStr}${r.raceName}</option>`;
         
-        // タブ用（選択中は目立たせる）
         const activeClass = isSelected 
           ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white border-blue-800 shadow-md transform scale-105' 
           : 'bg-white text-blue-800 border-blue-200 hover:bg-blue-50 hover:-translate-y-1';

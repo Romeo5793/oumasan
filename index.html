@@ -7,7 +7,7 @@
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V7.1">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V7.2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -173,7 +173,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V7</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V7.2</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -220,7 +220,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V7.1</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V7.2</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -345,7 +345,8 @@
       { date: "2026-06-21", detail: "【変更】ログイン画面の「安定動作ローカル版！」の表示を削除(V5)" },
       { date: "2026-06-21", detail: "【改善】AIのプロンプトを調整し、「今週末の新規レースの追加」を最優先で調査するように指示を強化(V6)" },
       { date: "2026-06-21", detail: "【改善】AIプロンプトをG3を含めた全重賞・主要レース網羅に変更し、横スクロールのタブ型UI切り替え機能を実装(V7)" },
-      { date: "2026-06-21", detail: "【バグ修正(V7.1)】誤って混入したコードによる構文エラーとカッコのズレを修正し、アプリが起動しない不具合を解決しました" }
+      { date: "2026-06-21", detail: "【バグ修正(V7.1)】誤って混入したコードによる構文エラーとカッコのズレを修正し、アプリが起動しない不具合を解決しました" },
+      { date: "2026-06-21", detail: "【バグ修正(V7.2)】AI調査が数分間進まなくなる問題に対応。通信のタイムアウト(45秒)設定と、エラー発生時に自動でログ画面を表示して原因を究明しやすくする機能を実装しました" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -494,7 +495,6 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
       },
 
-      // バグ修正箇所: ここに混入していた不要なエラーテキストを削除しました
       researchAI: async () => {
         const btn = document.getElementById('aiBtn');
         btn.disabled = true;
@@ -503,7 +503,7 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V7 差分更新)を開始しました');
+          appLogger.log('info', 'AI調査処理(V7.2 差分更新)を開始しました');
           
           let requestKey = state.appApiKey;
           let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
@@ -535,6 +535,12 @@
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
             
             try {
+              appLogger.log('info', `${targetModel} にリクエストを送信中...`);
+              
+              // タイムアウト設定 (45秒)
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 45000);
+
               const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -542,28 +548,47 @@
                   contents: [{ parts: [{ text: prompt }] }],
                   tools: [{ google_search: {} }],
                   systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
-                })
+                }),
+                signal: controller.signal
               });
+              
+              clearTimeout(timeoutId);
               
               if (res.ok) {
                 data = await res.json();
+                appLogger.log('info', `${targetModel} からの応答を受信しました`);
                 success = true;
                 break;
+              } else {
+                const errText = await res.text();
+                appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
               }
             } catch (e) {
-              console.error(e);
+              if (e.name === 'AbortError') {
+                 appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
+              } else {
+                 appLogger.log('error', `${targetModel} の通信エラー`, e.message);
+              }
             }
           }
 
-          if (!success) throw new Error("利用可能なすべてのモデルで調査に失敗しました。");
+          if (!success) throw new Error("利用可能なすべてのAIモデルで調査に失敗しました。タイムアウトか、API制限の可能性があります。");
 
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) {
+             appLogger.log('error', 'AIからのテキストが空でした', data);
+             throw new Error("AIからの応答が空でした。エラーログを確認してください。");
+          }
+
           const jsonMatch = text.match(/\{[\s\S]*\}/);
-          if (!jsonMatch) throw new Error("データ形式エラー");
+          if (!jsonMatch) {
+             appLogger.log('error', 'JSON形式エラー', { receivedText: text.substring(0, 200) + "..." });
+             throw new Error("AIのデータ形式エラーです。もう一度お試しください。");
+          }
 
           const parsed = JSON.parse(jsonMatch[0]);
           
-          if (parsed && parsed.races) {
+          if (parsed && parsed.races && parsed.races.length > 0) {
             parsed.races.forEach(newRace => {
               const existingIdx = state.races.findIndex(r => r.raceName === newRace.raceName);
               if (existingIdx >= 0) {
@@ -576,18 +601,27 @@
             state.races.sort((a, b) => new Date(b.date) - new Date(a.date));
             safeStorage.set('umakatsu_races', JSON.stringify(state.races));
             renderRaceNavigation();
-            showToast("更新完了！", "success");
+            showToast("データ更新完了！", "success");
             firePartyConfetti();
+            appLogger.log('info', 'AI調査処理が正常に完了しました');
+          } else {
+             appLogger.log('warn', 'レースデータが0件でした', parsed);
+             showToast("新しいレースデータは見つかりませんでした。", "info");
           }
         } catch (e) {
-          showToast(e.message, "error");
+          appLogger.log('error', '処理中に予期せぬエラーが発生しました', e.message);
+          showToast(e.message || "エラーが発生しました。", "error");
+          
+          // エラー詳細をユーザーに知らせるため、ログモーダルを自動表示する
+          const logText = appLogger.logs.map(l => `[${l.time}] ${l.level.toUpperCase()}: ${l.message} \n詳細: ${l.details}`).join("\n\n");
+          appLogger.showModal(logText);
         } finally {
           btn.disabled = false;
           btn.classList.remove('opacity-80');
           btn.innerHTML = `<i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>`;
           if (typeof lucide !== 'undefined') lucide.createIcons();
         }
-      } // バグ修正箇所: 余分だった `, };` を消し、正しく関数を閉じました
+      }
     };
 
     document.getElementById('loginForm').addEventListener('submit', app.login);

@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V6</title>
+  <title>お馬さんトレジャー V7</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V6">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -56,7 +56,7 @@
       background-size: 24px 24px;
     }
 
-    /* 桃鉄風の派手に跳ねるタイトル文字 (お馬さんトレジャー) */
+    /* 桃鉄風の派手に跳ねるタイトル文字 */
     .momo-title span {
       display: inline-block;
       color: #fff;
@@ -69,36 +69,33 @@
       -webkit-text-stroke: 1px #fff;
       text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
     }
-    .momo-title span:nth-child(1) { color: #FFEB3B; animation-delay: 0.0s; } /* お */
-    .momo-title span:nth-child(2) { color: #FF9800; animation-delay: 0.1s; } /* 馬 */
-    .momo-title span:nth-child(3) { color: #4CAF50; animation-delay: 0.2s; } /* さ */
-    .momo-title span:nth-child(4) { color: #03A9F4; animation-delay: 0.3s; } /* ん */
-    .momo-title span:nth-child(6) { color: #9C27B0; animation-delay: 0.4s; } /* ト */
-    .momo-title span:nth-child(7) { color: #E91E63; animation-delay: 0.5s; } /* レ */
-    .momo-title span:nth-child(8) { color: #FFEB3B; animation-delay: 0.6s; } /* ジ */
-    .momo-title span:nth-child(9) { color: #00BCD4; animation-delay: 0.7s; } /* ャ */
-    .momo-title span:nth-child(10) { color: #FF5722; animation-delay: 0.8s; } /* ー */
+    .momo-title span:nth-child(1) { color: #FFEB3B; animation-delay: 0.0s; } 
+    .momo-title span:nth-child(2) { color: #FF9800; animation-delay: 0.1s; } 
+    .momo-title span:nth-child(3) { color: #4CAF50; animation-delay: 0.2s; } 
+    .momo-title span:nth-child(4) { color: #03A9F4; animation-delay: 0.3s; } 
+    .momo-title span:nth-child(6) { color: #9C27B0; animation-delay: 0.4s; } 
+    .momo-title span:nth-child(7) { color: #E91E63; animation-delay: 0.5s; } 
+    .momo-title span:nth-child(8) { color: #FFEB3B; animation-delay: 0.6s; } 
+    .momo-title span:nth-child(9) { color: #00BCD4; animation-delay: 0.7s; } 
+    .momo-title span:nth-child(10) { color: #FF5722; animation-delay: 0.8s; } 
     
     @keyframes charBounce {
       0%, 100% { transform: translateY(0) scale(1); }
       50% { transform: translateY(-10px) scale(1.1) rotate(5deg); }
     }
 
-    /* 画面を横切る馬のアニメーション (軽量・最前面・向き修正) */
     @keyframes crossRight {
-      /* 🐎はデフォルトで左向きなので、右に進む時は反転(scaleX(-1))させる */
       0% { transform: translateX(-100px) scaleX(-1); }
       100% { transform: translateX(100vw) scaleX(-1); }
     }
     @keyframes crossLeft {
-      /* 左に進む時はそのままの向き */
       0% { transform: translateX(100vw); }
       100% { transform: translateX(-100px); }
     }
     .horse-crossing {
       position: fixed;
       pointer-events: none;
-      z-index: 9999; /* 最前面に表示 */
+      z-index: 9999; 
       font-size: 3rem;
       will-change: transform;
     }
@@ -134,7 +131,6 @@
     }
     .hover-hop:hover { animation: hop 0.4s ease; }
 
-    /* 期待値メーターのお馬さん（ぴょこぴょこ＆前面） */
     @keyframes horseDashMeter {
       0%, 100% { transform: translateX(-50%) translateY(0); }
       50% { transform: translateX(-50%) translateY(-5px); }
@@ -146,7 +142,7 @@
       transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1);
       filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
       animation: horseDashMeter 0.4s infinite;
-      z-index: 50; /* バーよりも前面に配置 */
+      z-index: 50;
     }
   </style>
 </head>
@@ -176,9 +172,8 @@
         </div>
       </div>
       
-      <!-- 桃鉄風ド派手で可愛いタイトル -->
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V6</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V7</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -224,9 +219,8 @@
           <i data-lucide="trophy" class="w-6 h-6 sm:w-8 sm:h-8"></i>
         </div>
         <div>
-          <!-- ヘッダータイトルも見やすく -->
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V6</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V7</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -238,10 +232,19 @@
 
     <!-- コントロールパネル -->
     <div class="bg-white/95 backdrop-blur-md p-3 sm:p-5 rounded-3xl border-2 border-white shadow-lg flex flex-col gap-3 relative z-10">
+      
+      <!-- 【新規】横スクロールのレース切り替えタブ -->
+      <div id="raceTabsContainer" class="w-full overflow-x-auto custom-scrollbar pb-2 hidden">
+        <div id="raceTabs" class="flex gap-2 min-w-max px-1">
+          <!-- タブがここに生成されます -->
+        </div>
+      </div>
+
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <i data-lucide="search" class="w-6 h-6 text-blue-600"></i>
         </div>
+        <!-- タブと連動するセレクトボックス -->
         <select id="raceSelect" onchange="app.changeRace(this.value)" class="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl pl-12 pr-10 py-4 text-sm sm:text-base font-black text-blue-900 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all appearance-none cursor-pointer shadow-sm fun-input">
           <option value="" disabled selected>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>
         </select>
@@ -249,7 +252,8 @@
           <i data-lucide="chevron-down" class="w-6 h-6 text-blue-500"></i>
         </div>
       </div>
-      <!-- V6 差分調査ボタン -->
+      
+      <!-- AI調査ボタン -->
       <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-black rounded-2xl shadow-[0_6px_0_#1E3A8A] active:shadow-[0_0px_0_#1E3A8A] active:translate-y-[6px] transition-all text-base sm:text-xl border-2 border-blue-800">
         <i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> 
         <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>
@@ -327,7 +331,6 @@
   <script>
     const apiKey = ""; 
 
-    // --- 📋 要求履歴・実装履歴の自己チェック機能 ---
     const appHistory = [
       { date: "2026-06-20", detail: "APIキー入力とdemoキー対応の実装" },
       { date: "2026-06-21", detail: "APIからモデル一覧を自動取得し、PROを除外した中で最適なモデルを自動選択" },
@@ -340,20 +343,18 @@
       { date: "2026-06-21", detail: "【完全ローカル化(V3)】Firebaseへの依存を完全に排除し、ブラウザのローカルストレージのみで動作する安定版へ移行。起動時のエラーを防ぐためイベントリスナーによる安全な初期化を実装。" },
       { date: "2026-06-21", detail: "【修正】AIによる差分調査・更新後にプルダウンリストが最新データで更新・選択されない不具合を修正(V4)" },
       { date: "2026-06-21", detail: "【変更】ログイン画面の「安定動作ローカル版！」の表示を削除(V5)" },
-      { date: "2026-06-21", detail: "【改善】AIのプロンプトを調整し、「今週末の新規レースの追加」を最優先で調査するように指示を強化(V6)" }
+      { date: "2026-06-21", detail: "【改善】AIのプロンプトを調整し、「今週末の新規レースの追加」を最優先で調査するように指示を強化(V6)" },
+      { date: "2026-06-21", detail: "【改善】AIプロンプトをG3を含めた全重賞・主要レース網羅に変更し、横スクロールのタブ型UI切り替え機能を実装(V7)" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
 
-    // --- 軽量で安全な「たまに横切るお馬さん」演出 ---
     function spawnCrossingHorse() {
       const horse = document.createElement('div');
       horse.className = 'horse-crossing drop-shadow-md';
       horse.innerText = '🐎💨';
-      
       const top = Math.floor(Math.random() * 70) + 10;
       horse.style.top = `${top}vh`;
-      
       const goRight = Math.random() > 0.5;
       const duration = Math.random() * 2 + 2; 
 
@@ -372,7 +373,6 @@
       });
     }
 
-    // --- わちゃわちゃ演出：クリックエフェクト ---
     document.addEventListener('click', (e) => {
       const emoji = document.createElement('div');
       emoji.innerText = '✨';
@@ -389,7 +389,6 @@
       setTimeout(() => emoji.remove(), 500);
     });
 
-    // --- わちゃわちゃ演出：ド派手な連続紙吹雪 ---
     function firePartyConfetti() {
       if (typeof confetti !== 'function') return;
       const duration = 2500;
@@ -402,7 +401,6 @@
       }());
     }
 
-    // --- システム基本処理 ---
     const safeStorage = {
       get: (key) => { try { return localStorage.getItem(key); } catch (e) { return window['_safe_' + key] || null; } },
       set: (key, val) => { try { localStorage.setItem(key, val); } catch (e) { window['_safe_' + key] = val; } }
@@ -462,6 +460,7 @@
         state.selectedRaceId = raceId;
         const currentRace = state.races.find(r => r.raceId === raceId);
         state.localHorses = currentRace && currentRace.horses ? currentRace.horses : [];
+        renderRaceNavigation();
         renderUI();
       },
 
@@ -502,7 +501,7 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V6 差分更新)を開始しました');
+          appLogger.log('info', 'AI調査処理(V7 差分更新)を開始しました');
           
           let requestKey = state.appApiKey;
           let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
@@ -553,7 +552,7 @@
             ${JSON.stringify(state.races)}
 
             【調査・更新ルール】
-            1. 【今週末のレースを最優先で追加】現在のデータにない、直近の土日に開催されるJRAの注目重賞レース（またはメインレース）を必ず調査し、新規データとして追加してください。
+            1. 【今週末の全レースを追加】現在のデータにない、直近の土日に開催されるJRAの【すべての重賞レース（G1、G2、G3）および主要な特別レース】を網羅的に調査し、新規データとして追加してください。
             2. 【既存データの更新】既存レースの「単勝オッズ(odds)」を最新のものに更新してください。
             3. 枠順が未確定だったものが確定していれば「馬番(number)」を更新してください。
             4. 出走取消の馬がいれば、リストから除外してください。
@@ -631,7 +630,7 @@
               state.races.sort((a, b) => (!b.date ? -1 : !a.date ? 1 : new Date(b.date) - new Date(a.date)));
               safeStorage.set('umakatsu_races', JSON.stringify(state.races));
 
-              renderSelect(); 
+              renderRaceNavigation(); 
 
               if (lastId) {
                 app.changeRace(lastId);
@@ -657,7 +656,6 @@
 
     document.getElementById('loginForm').addEventListener('submit', app.login);
 
-    // 完全ローカルデータの読み込み
     function loadLocalData() {
       const saved = safeStorage.get('umakatsu_races');
       if (saved) {
@@ -670,11 +668,10 @@
         const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
         if (currentRace) state.localHorses = currentRace.horses || [];
       }
-      renderSelect();
+      renderRaceNavigation();
       renderUI();
     }
 
-    // 完全ローカルデータへの保存
     function saveData() {
       if (!state.selectedRaceId) return;
       const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
@@ -692,13 +689,41 @@
       return colors[(num - 1) % 8] || colors[0];
     }
 
-    function renderSelect() {
+    // タブとセレクトボックスの両方を描画する新機能
+    function renderRaceNavigation() {
       const select = document.getElementById('raceSelect');
+      const tabsContainer = document.getElementById('raceTabsContainer');
+      const tabs = document.getElementById('raceTabs');
+      
+      // プルダウンの更新
       select.innerHTML = '<option value="" disabled ' + (!state.selectedRaceId ? 'selected' : '') + '>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>';
+      
+      // タブの更新
+      tabs.innerHTML = '';
+      if (state.races.length > 0) {
+        tabsContainer.classList.remove('hidden');
+      } else {
+        tabsContainer.classList.add('hidden');
+      }
+
       state.races.forEach(r => {
-        const isSelected = r.raceId === state.selectedRaceId ? 'selected' : '';
+        const isSelected = r.raceId === state.selectedRaceId;
         const dateStr = r.date ? `${r.date} ` : '';
-        select.innerHTML += `<option value="${r.raceId}" ${isSelected}>${dateStr}${r.raceName}</option>`;
+        const shortDate = r.date ? r.date.split('-').slice(1).join('/') : ''; // MM/DD形式
+        
+        // プルダウン用
+        select.innerHTML += `<option value="${r.raceId}" ${isSelected ? 'selected' : ''}>${dateStr}${r.raceName}</option>`;
+        
+        // タブ用（選択中は目立たせる）
+        const activeClass = isSelected 
+          ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white border-blue-800 shadow-md transform scale-105' 
+          : 'bg-white text-blue-800 border-blue-200 hover:bg-blue-50 hover:-translate-y-1';
+          
+        tabs.innerHTML += `
+          <button onclick="app.changeRace('${r.raceId}')" class="px-4 py-2.5 rounded-xl border-2 font-black text-sm whitespace-nowrap transition-all shadow-sm ${activeClass}">
+            <span class="text-xs opacity-80 mr-1">${shortDate}</span>${r.raceName}
+          </button>
+        `;
       });
     }
 
@@ -831,7 +856,6 @@
                 <span class="text-gray-800">期待値メーター</span>
                 <span class="${horse.expectedValue >= 1.0 ? 'text-pink-600 text-base drop-shadow-md' : 'text-gray-600'}">${fireIcon}${horse.expectedValue}</span>
               </div>
-              <!-- バーの上に馬が走る演出 -->
               <div class="h-3 w-full bg-gray-200 rounded-full overflow-visible relative mt-4 shadow-inner border border-gray-300">
                 <div class="racing-horse z-20" style="left: ${width}%">🏇</div>
                 <div class="absolute top-0 bottom-0 w-1 bg-red-600 z-10 shadow-[0_0_5px_red]" style="left: 50%"></div>
@@ -868,17 +892,15 @@
       toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
-    // 起動時の初期化を安全に行う（Firebaseなし）
     document.addEventListener('DOMContentLoaded', () => {
       const savedKey = safeStorage.get('umakatsu_api_key');
       if (savedKey) {
         document.getElementById('apiKeyInput').value = savedKey;
-        app.login(); // キーがあれば自動ログイン
+        app.login();
       }
       if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 
-    // 画面の描画が完全に終わってから安全にお馬さんを走らせる
     window.addEventListener('load', () => {
         setTimeout(spawnCrossingHorse, 3000);
     });

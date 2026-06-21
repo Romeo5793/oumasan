@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V7</title>
+  <title>お馬さんトレジャー V8</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -545,8 +545,17 @@
           }
 
           const prompt = `
-            あなたはプロの競馬データアナリストです。本日の日付は ${new Date().toLocaleDateString('ja-JP')} です。
-            以下の【現在のデータ】は過去の参照用としてのみ扱い、これに囚われず、Google検索を用いて【今週末開催のJRA重賞および主要レースの最新出馬表】を完全に新しく調査し、データを再構築してください。
+  あなたはプロの競馬データアナリストです。
+  【現在のデータ】: ${JSON.stringify(state.races)}
+
+  【調査・更新ルール】
+  1. 【同一性の判定と統合】レース名が類似している場合（例:「〇〇ステークス」と「〇〇S」など）、それらは【同一のレース】として扱ってください。重複させず、最新の情報で1つのレースIDに統合してください。
+  2. 【全頭網羅】レース情報は、出馬表に記載されている【全頭】を必ず含め、分割せずに1つのレースにまとめてJSON配列として出力してください。
+  3. 【最新データの優先】Google検索を用いて最新情報を取得し、現在のデータに関わらず、最新の出馬表（馬番・馬名・最新オッズ）を正確にJSONへ反映させてください。
+  
+  【重要】出力は以下のJSON構造に厳密に従い、Markdownのコードブロックを含めず純粋なJSONのみ出力してください。
+  {"races": [{"raceId": "文字列（日付_レース名）", "raceName": "文字列", "date": "文字列", "track": "文字列", "distance": "文字列", "horses": [...]}]}
+`;
 
             【現在のデータ (参考用)】
             ${JSON.stringify(state.races)}

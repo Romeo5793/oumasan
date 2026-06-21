@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V8.1</title>
+  <title>お馬さんトレジャー V8.2</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.1">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -49,13 +49,13 @@
     @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     .toast-anim { animation: slideDown 0.3s ease-out forwards; }
 
-    /* 背景のドット（アニメーションなしで軽量化） */
+    /* 背景のドット */
     .bg-static-dots {
       background-image: radial-gradient(#ffb74d 2px, transparent 2px);
       background-size: 24px 24px;
     }
 
-    /* 桃鉄風の派手に跳ねるタイトル文字 */
+    /* タイトル文字 */
     .momo-title span {
       display: inline-block;
       color: #fff;
@@ -151,12 +151,20 @@
     <span id="toastMsg"></span>
   </div>
 
-  <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm relative z-50">
-    <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col">
+  <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col relative">
       <h3 class="font-black text-red-600 mb-2 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> エラーログ</h3>
       <p class="text-sm font-bold text-gray-800 mb-3">動作中に問題が発生しました。以下のログをご確認ください。</p>
       <textarea id="errorLogText" class="w-full h-48 text-xs bg-gray-50 border border-gray-300 rounded-xl p-3 mb-4 font-mono outline-none text-gray-900" readonly></textarea>
-      <button onclick="document.getElementById('errorLogModal').classList.add('hidden')" class="px-4 py-3 bg-gray-800 hover:bg-black text-white font-bold rounded-xl active:scale-95 transition-all">閉じる</button>
+      
+      <div class="flex justify-end gap-3 mt-2">
+        <button onclick="appLogger.downloadCSV()" class="flex-1 sm:flex-none flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl active:scale-95 transition-all shadow-sm">
+          <i data-lucide="download" class="w-5 h-5 mr-1.5"></i> CSVで保存
+        </button>
+        <button onclick="document.getElementById('errorLogModal').classList.add('hidden')" class="flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-black text-white font-bold rounded-xl active:scale-95 transition-all shadow-sm">
+          閉じる
+        </button>
+      </div>
     </div>
   </div>
 
@@ -169,7 +177,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.1</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.2</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -217,7 +225,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.1</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.2</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -338,7 +346,8 @@
       { date: "2026-06-21", detail: "【バグ修正(V7.1)】誤って混入したコードによる構文エラーとカッコのズレを修正し、アプリが起動しない不具合を解決しました" },
       { date: "2026-06-21", detail: "【バグ修正(V7.2)】AI調査が数分間進まなくなる問題に対応。通信のタイムアウト(45秒)設定と、エラー発生時に自動でログ画面を表示して原因を究明しやすくする機能を実装しました" },
       { date: "2026-06-21", detail: "【根本治療(V8.0)】AIがG1しか取得しない問題を解決するため、プロンプトを「全レース対象」に強制。また、調査サイトの表記揺れによる同日付・類似名レースの重複を防ぐため完全統合と再評価を指示する厳格なルールを追加。" },
-      { date: "2026-06-21", detail: "【機能追加(V8.1)】異なるAPIキーをすぐに試せるよう、ヘッダーにログアウト機能を追加。" }
+      { date: "2026-06-21", detail: "【機能追加(V8.1)】異なるAPIキーをすぐに試せるよう、ヘッダーにログアウト機能を追加。" },
+      { date: "2026-06-21", detail: "【根本治療(V8.2)】エラーログ画面にDOM操作で「CSVで保存」ボタンを確実に追加。また、固定名による404エラーを防ぐため「APIからモデル一覧を自動取得・最適なモデルを動的ソートして使用する機能」を完全復活。" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -416,11 +425,14 @@
         document.getElementById('errorLogModal').classList.remove('hidden');
       },
       downloadCSV: function() {
-        if (this.logs.length === 0) return;
+        if (this.logs.length === 0) {
+            showToast("ダウンロードするログがありません", "info");
+            return;
+        }
         const header = "Time,Level,Message,Details\n";
         const csvContent = this.logs.map(l => `"${l.time}","${l.level}","${l.message}","${l.details.replace(/"/g, '""')}"`).join("\n");
         const fullCsv = header + csvContent;
-        this.showModal(fullCsv);
+        
         try {
           const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
           const url = URL.createObjectURL(blob);
@@ -430,8 +442,10 @@
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          showToast("CSVをダウンロードしました！", "success");
         } catch (e) {
-          console.warn("直接ダウンロードが制限されています。モーダル画面のログを確認してください。");
+          console.warn("直接ダウンロードが制限されています。", e);
+          showToast("ダウンロードがブロックされました", "error");
         }
       }
     };
@@ -505,14 +519,39 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V8.1 全レース取得＆完全統合)を開始しました');
+          appLogger.log('info', 'AI調査処理(V8.2 全レース取得＆完全統合)を開始しました');
           
           let requestKey = state.appApiKey;
-          let candidateModelsNames = ["gemini-2.5-flash", "gemini-1.5-flash"]; 
+          let candidateModelsNames = []; 
           
+          // モデルを動的に取得する（PRO/Lite除外、Flashモデル優先）
           if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
-            candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"];
+            candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"]; // デモ用のフォールバック
+          } else {
+            appLogger.log('info', 'APIから利用可能なモデル一覧を自動取得しています...');
+            try {
+              const modelRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`);
+              if(modelRes.ok) {
+                  const modelJson = await modelRes.json();
+                  candidateModelsNames = modelJson.models
+                      .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+                      .map(m => m.name.replace("models/", ""))
+                      .filter(name => !name.toLowerCase().includes("pro") && !name.toLowerCase().includes("lite") && name.includes("flash"))
+                      .sort((a,b) => b.localeCompare(a)); // 2.5や2.0など新しいバージョンを前に持ってくるための雑なソート
+                  
+                  appLogger.log('info', '利用可能なAIモデルを自動取得しました', candidateModelsNames);
+              } else {
+                  appLogger.log('warn', 'モデル一覧の取得に失敗しました。デフォルト設定を使用します。', {status: modelRes.status});
+              }
+            } catch (err) {
+              appLogger.log('warn', 'モデル一覧の取得中に通信エラーが発生しました', err.message);
+            }
+          }
+
+          // モデル取得失敗時の安全策（最新の安定板モデル名に修正）
+          if (!candidateModelsNames || candidateModelsNames.length === 0) {
+              candidateModelsNames = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-flash"];
           }
 
           const prompt = `

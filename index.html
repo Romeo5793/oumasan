@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V8.5</title>
+  <title>お馬さんトレジャー V8.6</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.5">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.6">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -49,13 +49,11 @@
     @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     .toast-anim { animation: slideDown 0.3s ease-out forwards; }
 
-    /* 背景のドット */
     .bg-static-dots {
       background-image: radial-gradient(#ffb74d 2px, transparent 2px);
       background-size: 24px 24px;
     }
 
-    /* タイトル文字 */
     .momo-title span {
       display: inline-block;
       color: #fff;
@@ -177,7 +175,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.5</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.6</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -225,7 +223,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.5</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.6</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -350,7 +348,8 @@
       { date: "2026-06-21", detail: "【根本治療(V8.2)】エラーログ画面にDOM操作で「CSVで保存」ボタンを確実に追加。また、固定名による404エラーを防ぐため「APIからモデル一覧を自動取得・最適なモデルを動的ソートして使用する機能」を完全復活。" },
       { date: "2026-06-21", detail: "【根本治療(V8.3)】429(Quota Exceeded)エラー検知時、全モデルへの無駄なフォールバックを停止し、API枠の超過を明確にユーザーへ通知する安全機構を追加。" },
       { date: "2026-06-21", detail: "【根本治療(V8.4)】連続リクエストによるスパイク制限(429エラー)を防ぐため、モデル一覧をキャッシュ化し通信回数を半減。また、新規キーでのエラー原因（既存プロジェクトとの共有）を案内するようエラー文を強化。" },
-      { date: "2026-06-24", detail: "【バグ修正(V8.5)】AIの検索機能(Grounding)呼び出し時のJSONパラメータ名誤り(`Google Search`→`googleSearch`)を修正し、400エラーの根本原因を解消。" }
+      { date: "2026-06-24", detail: "【バグ修正(V8.5)】AIの検索機能(Grounding)呼び出し時のJSONパラメータ名誤り(`google_search`→`googleSearch`)を修正し、400エラーの根本原因を解消。" },
+      { date: "2026-06-24", detail: "【根本治療(V8.6)】初回利用時でも429エラーが出る不具合を修正。検索ツールと相性の悪い `latest` や `preview` モデルを自動選択から除外し、安定版モデルを正確に優先するように改善。" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -522,16 +521,15 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V8.5 通信量半減＆全レース取得)を開始しました');
+          appLogger.log('info', 'AI調査処理(V8.6 安定版モデルの正確な優先選択)を開始しました');
           
           let requestKey = state.appApiKey;
           let candidateModelsNames = []; 
           
           if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
             requestKey = apiKey; 
-            candidateModelsNames = ["gemini-2.5-flash-preview-09-2025"]; 
+            candidateModelsNames = ["gemini-2.5-flash"]; 
           } else {
-            // 【V8.4 根本治療】通信量を半減させるためのモデルキャッシュ機能
             const cachedModels = safeStorage.get('umakatsu_cached_models_' + requestKey.substring(0, 10));
             
             if (cachedModels) {
@@ -543,13 +541,22 @@
                   const modelRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`);
                   if(modelRes.ok) {
                       const modelJson = await modelRes.json();
+                      
+                      // 【V8.6 根本治療】検索ツールと相性の悪いエイリアスやテストモデルを完全に除外
                       candidateModelsNames = modelJson.models
                           .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
                           .map(m => m.name.replace("models/", ""))
-                          .filter(name => !name.toLowerCase().includes("pro") && !name.toLowerCase().includes("lite") && name.includes("flash"))
+                          .filter(name => 
+                              !name.toLowerCase().includes("pro") && 
+                              !name.toLowerCase().includes("lite") && 
+                              name.includes("flash") &&
+                              !name.toLowerCase().includes("latest") && 
+                              !name.toLowerCase().includes("preview") &&
+                              !name.toLowerCase().includes("image") &&
+                              !name.toLowerCase().includes("tts")
+                          )
                           .sort((a,b) => b.localeCompare(a)); 
                       
-                      // 取得成功したらキャッシュに保存
                       safeStorage.set('umakatsu_cached_models_' + requestKey.substring(0, 10), JSON.stringify(candidateModelsNames));
                       appLogger.log('info', '利用可能なAIモデルを自動取得し、キャッシュしました', candidateModelsNames);
                   } else {
@@ -562,7 +569,7 @@
           }
 
           if (!candidateModelsNames || candidateModelsNames.length === 0) {
-              candidateModelsNames = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-flash"];
+              candidateModelsNames = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.0-flash"];
           }
 
           const prompt = `
@@ -597,7 +604,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
-                  // 【V8.5 修正箇所】 google_search ではなく googleSearch を使用する
                   tools: [{ googleSearch: {} }],
                   systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
                 }),
@@ -615,7 +621,6 @@
                 const errText = await res.text();
                 appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
                 
-                // 【V8.4 根本治療】新規キーでエラーになる理由を案内
                 if (res.status === 429) {
                     throw new Error("🚨 APIキーの利用制限に達しました。\n\n【重要】今日作ったばかりのキーでこのエラーが出る場合、既存のプロジェクト内にキーを作成していることが原因です。Google AI Studioで「Create API key in a new project」を選択し、完全に新しいプロジェクトでキーを発行し直してください！");
                 }

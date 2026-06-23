@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V8.6</title>
+  <title>お馬さんトレジャー V8.7</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.6">
+  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
   
   <script>
@@ -175,7 +175,7 @@
       </div>
       
       <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.6</span>
+        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.7</span>
       </h1>
       
       <form id="loginForm" class="space-y-5 relative z-10">
@@ -223,7 +223,7 @@
         </div>
         <div>
           <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.6</span>
+             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.7</span>
           </h1>
           <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
         </div>
@@ -348,8 +348,9 @@
       { date: "2026-06-21", detail: "【根本治療(V8.2)】エラーログ画面にDOM操作で「CSVで保存」ボタンを確実に追加。また、固定名による404エラーを防ぐため「APIからモデル一覧を自動取得・最適なモデルを動的ソートして使用する機能」を完全復活。" },
       { date: "2026-06-21", detail: "【根本治療(V8.3)】429(Quota Exceeded)エラー検知時、全モデルへの無駄なフォールバックを停止し、API枠の超過を明確にユーザーへ通知する安全機構を追加。" },
       { date: "2026-06-21", detail: "【根本治療(V8.4)】連続リクエストによるスパイク制限(429エラー)を防ぐため、モデル一覧をキャッシュ化し通信回数を半減。また、新規キーでのエラー原因（既存プロジェクトとの共有）を案内するようエラー文を強化。" },
-      { date: "2026-06-24", detail: "【バグ修正(V8.5)】AIの検索機能(Grounding)呼び出し時のJSONパラメータ名誤り(`google_search`→`googleSearch`)を修正し、400エラーの根本原因を解消。" },
-      { date: "2026-06-24", detail: "【根本治療(V8.6)】初回利用時でも429エラーが出る不具合を修正。検索ツールと相性の悪い `latest` や `preview` モデルを自動選択から除外し、安定版モデルを正確に優先するように改善。" }
+      { date: "2026-06-24", detail: "【バグ修正(V8.5)】AIの検索機能(Grounding)呼び出し時のJSONパラメータ名誤り(`Google Search`→`googleSearch`)を修正し、400エラーの根本原因を解消。" },
+      { date: "2026-06-24", detail: "【根本治療(V8.6)】初回利用時でも429エラーが出る不具合を修正。検索ツールと相性の悪い `latest` や `preview` モデルを自動選択から除外し、安定版モデルを正確に優先するように改善。" },
+      { date: "2026-06-24", detail: "【根本治療(V8.7)】旧バージョンのキャッシュに残っていた不安定なモデル(latest等)を読み込んでしまう不具合を修正。キャッシュキーを更新し、強制的に安定版モデル一覧を再取得するように改善。" }
     ];
     console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
     appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
@@ -521,7 +522,7 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-          appLogger.log('info', 'AI調査処理(V8.6 安定版モデルの正確な優先選択)を開始しました');
+          appLogger.log('info', 'AI調査処理(V8.7 安定版モデルの正確な優先選択と強制再取得)を開始しました');
           
           let requestKey = state.appApiKey;
           let candidateModelsNames = []; 
@@ -530,11 +531,13 @@
             requestKey = apiKey; 
             candidateModelsNames = ["gemini-2.5-flash"]; 
           } else {
-            const cachedModels = safeStorage.get('umakatsu_cached_models_' + requestKey.substring(0, 10));
+            // 【V8.7 根本治療】キャッシュキーを「v87_」に変更し、過去の汚染されたキャッシュを完全に無視する
+            const cacheKey = 'umakatsu_cached_models_v87_' + requestKey.substring(0, 10);
+            const cachedModels = safeStorage.get(cacheKey);
             
             if (cachedModels) {
                 candidateModelsNames = JSON.parse(cachedModels);
-                appLogger.log('info', 'キャッシュからAIモデル一覧を読み込みました（APIリクエスト節約）');
+                appLogger.log('info', 'クリーンなキャッシュからAIモデル一覧を読み込みました（APIリクエスト節約）');
             } else {
                 appLogger.log('info', 'APIから利用可能なモデル一覧を新規取得しています...');
                 try {
@@ -542,7 +545,7 @@
                   if(modelRes.ok) {
                       const modelJson = await modelRes.json();
                       
-                      // 【V8.6 根本治療】検索ツールと相性の悪いエイリアスやテストモデルを完全に除外
+                      // 検索ツールと相性の悪いエイリアスやテストモデルを完全に除外
                       candidateModelsNames = modelJson.models
                           .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
                           .map(m => m.name.replace("models/", ""))
@@ -557,8 +560,8 @@
                           )
                           .sort((a,b) => b.localeCompare(a)); 
                       
-                      safeStorage.set('umakatsu_cached_models_' + requestKey.substring(0, 10), JSON.stringify(candidateModelsNames));
-                      appLogger.log('info', '利用可能なAIモデルを自動取得し、キャッシュしました', candidateModelsNames);
+                      safeStorage.set(cacheKey, JSON.stringify(candidateModelsNames));
+                      appLogger.log('info', '利用可能な安定版AIモデルを取得し、キャッシュを更新しました', candidateModelsNames);
                   } else {
                       appLogger.log('warn', 'モデル一覧の取得に失敗しました。デフォルト設定を使用します。', {status: modelRes.status});
                   }

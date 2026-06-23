@@ -1,941 +1,752 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>お馬さんトレジャー V8.7</title>
-  
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="お馬さんトレジャー V8.7">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%2254%25%22 x=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>🐴</text></svg>">
-  
-  <script>
-    (function() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 180;
-      canvas.height = 180;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#f97316';
-      ctx.fillRect(0, 0, 180, 180);
-      ctx.font = '100px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('🐴', 90, 100);
-      const link = document.createElement('link');
-      link.rel = 'apple-touch-icon';
-      link.href = canvas.toDataURL('image/png');
-      document.head.appendChild(link);
-    })();
-  </script>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-  <style>
-    body { font-family: 'Zen Maru Gothic', sans-serif; }
-
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 237, 213, 0.5); border-radius: 10px; margin: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(251, 146, 60, 0.6); border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.9); }
-    
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type="number"] { -moz-appearance: textfield; }
-
-    @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-    .toast-anim { animation: slideDown 0.3s ease-out forwards; }
-
-    .bg-static-dots {
-      background-image: radial-gradient(#ffb74d 2px, transparent 2px);
-      background-size: 24px 24px;
-    }
-
-    .momo-title span {
-      display: inline-block;
-      color: #fff;
-      -webkit-text-stroke: 2px #d84315;
-      paint-order: stroke fill;
-      text-shadow: 2px 2px 0px #d84315, 4px 4px 0px rgba(0,0,0,0.3);
-      animation: charBounce 1s infinite;
-    }
-    .momo-title span.v3-badge {
-      -webkit-text-stroke: 1px #fff;
-      text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
-    }
-    .momo-title span:nth-child(1) { color: #FFEB3B; animation-delay: 0.0s; } 
-    .momo-title span:nth-child(2) { color: #FF9800; animation-delay: 0.1s; } 
-    .momo-title span:nth-child(3) { color: #4CAF50; animation-delay: 0.2s; } 
-    .momo-title span:nth-child(4) { color: #03A9F4; animation-delay: 0.3s; } 
-    .momo-title span:nth-child(6) { color: #9C27B0; animation-delay: 0.4s; } 
-    .momo-title span:nth-child(7) { color: #E91E63; animation-delay: 0.5s; } 
-    .momo-title span:nth-child(8) { color: #FFEB3B; animation-delay: 0.6s; } 
-    .momo-title span:nth-child(9) { color: #00BCD4; animation-delay: 0.7s; } 
-    .momo-title span:nth-child(10) { color: #FF5722; animation-delay: 0.8s; } 
-    
-    @keyframes charBounce {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-10px) scale(1.1) rotate(5deg); }
-    }
-
-    @keyframes crossRight {
-      0% { transform: translateX(-100px) scaleX(-1); }
-      100% { transform: translateX(100vw) scaleX(-1); }
-    }
-    @keyframes crossLeft {
-      0% { transform: translateX(100vw); }
-      100% { transform: translateX(-100px); }
-    }
-    .horse-crossing {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999; 
-      font-size: 3rem;
-      will-change: transform;
-    }
-
-    @keyframes horseDash {
-      0% { transform: translateX(-3px) skewX(0deg); }
-      50% { transform: translateX(3px) skewX(-15deg); }
-      100% { transform: translateX(-3px) skewX(0deg); }
-    }
-    .horse-dash { display: inline-block; animation: horseDash 0.2s infinite; }
-
-    @keyframes goldPulse {
-      0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); border-color: #facc15; }
-      70% { box-shadow: 0 0 0 10px rgba(250, 204, 21, 0); border-color: #fbbf24; }
-      100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); border-color: #facc15; }
-    }
-    .gold-pulse {
-      animation: goldPulse 2s infinite;
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-      border-width: 2px;
-    }
-
-    .fun-input { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .fun-input:focus {
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
-      z-index: 10;
-    }
-    
-    @keyframes hop {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
-    }
-    .hover-hop:hover { animation: hop 0.4s ease; }
-
-    @keyframes horseDashMeter {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-5px); }
-    }
-    .racing-horse {
-      position: absolute;
-      top: -25px;
-      font-size: 2rem;
-      transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-      animation: horseDashMeter 0.4s infinite;
-      z-index: 50;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お宝発掘！AI競馬シミュレーター🏮</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* お祭り・和風のカスタムスタイル */
+        body {
+            background-color: #fef08a; /* bg-yellow-200 */
+            background-image: radial-gradient(#fbbf24 2px, transparent 2px);
+            background-size: 20px 20px;
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            color: #451a03; /* text-amber-950 */
+        }
+        .matsuri-header {
+            background: linear-gradient(to right, #b45309, #d97706, #b45309);
+            border-bottom: 5px solid #064e3b; /* 緑のアクセント */
+        }
+        .treasure-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 4px solid #f59e0b;
+            box-shadow: 4px 4px 0px #b45309;
+        }
+        .wood-panel {
+            background-color: #8B4513;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.1) 10px,
+                rgba(0,0,0,0.1) 20px
+            );
+            color: #fef3c7;
+            border: 4px solid #5c2e0e;
+        }
+        .grass-panel {
+            background-color: #166534;
+            background-image: radial-gradient(#14532d 15%, transparent 16%), radial-gradient(#14532d 15%, transparent 16%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            color: white;
+            border: 4px solid #064e3b;
+        }
+        .btn-matsuri {
+            background-color: #dc2626;
+            color: white;
+            border-bottom: 4px solid #991b1b;
+            transition: all 0.1s;
+        }
+        .btn-matsuri:active {
+            transform: translateY(4px);
+            border-bottom: 0px;
+            margin-bottom: 4px;
+        }
+        .btn-green {
+            background-color: #16a34a;
+            color: white;
+            border-bottom: 4px solid #14532d;
+            transition: all 0.1s;
+        }
+        .btn-green:active {
+            transform: translateY(4px);
+            border-bottom: 0px;
+            margin-bottom: 4px;
+        }
+        .blink-text {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        .shining-border {
+            animation: shine 1.5s infinite alternate;
+        }
+        @keyframes shine {
+            0% { box-shadow: 0 0 10px #f59e0b; }
+            100% { box-shadow: 0 0 30px #fef08a, 0 0 10px #f59e0b inset; }
+        }
+    </style>
 </head>
-<body class="bg-[#FFF8E1] text-gray-900 min-h-screen pb-10 relative bg-static-dots overflow-x-hidden">
+<body class="min-h-screen pb-10 relative">
 
-  <div id="toast" class="hidden fixed top-4 left-1/2 z-50 flex items-center px-5 py-3 rounded-2xl shadow-lg font-bold text-sm toast-anim text-white">
-    <span id="toastMsg"></span>
-  </div>
-
-  <div id="errorLogModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl p-5 w-full max-w-xl shadow-2xl flex flex-col relative">
-      <h3 class="font-black text-red-600 mb-2 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> エラーログ</h3>
-      <p class="text-sm font-bold text-gray-800 mb-3">動作中に問題が発生しました。以下のログをご確認ください。</p>
-      <textarea id="errorLogText" class="w-full h-48 text-xs bg-gray-50 border border-gray-300 rounded-xl p-3 mb-4 font-mono outline-none text-gray-900" readonly></textarea>
-      
-      <div class="flex justify-end gap-3 mt-2">
-        <button onclick="appLogger.downloadCSV()" class="flex-1 sm:flex-none flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl active:scale-95 transition-all shadow-sm">
-          <i data-lucide="download" class="w-5 h-5 mr-1.5"></i> CSVで保存
-        </button>
-        <button onclick="document.getElementById('errorLogModal').classList.add('hidden')" class="flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-black text-white font-bold rounded-xl active:scale-95 transition-all shadow-sm">
-          閉じる
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 relative z-10">
-    <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl max-w-md w-full border-4 border-yellow-400">
-      <div class="flex justify-center mb-6 relative">
-        <div class="p-4 bg-gradient-to-tr from-orange-100 to-yellow-50 rounded-full border-2 border-orange-300 shadow-inner relative z-10 animate-bounce">
-          <i data-lucide="bot" class="w-16 h-16 text-orange-600"></i>
+    <!-- ヘッダー -->
+    <header class="matsuri-header text-white p-4 text-center shadow-lg relative">
+        <h1 class="text-3xl font-black tracking-widest drop-shadow-md">🏮 AI競馬お宝発掘 🏮</h1>
+        <p class="text-sm mt-1 text-amber-200" id="version-display">KeibaTreasure_V1.0</p>
+        <div class="absolute right-4 top-4 flex flex-col items-end gap-2">
+            <div class="bg-black/50 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2 border-2 border-yellow-400">
+                <span>💰 所持金:</span>
+                <span id="wallet-amount" class="text-yellow-400 text-lg">10,000</span>
+                <span>円</span>
+            </div>
+            <button onclick="AppLogger.exportCSV()" class="text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded">ログDL</button>
         </div>
-      </div>
-      
-      <h1 class="text-[2rem] sm:text-4xl font-black text-center mb-8 flex justify-center items-end momo-title tracking-tight pb-2">
-        <span>お</span><span>馬</span><span>さ</span><span>ん</span><br class="sm:hidden"/><span>ト</span><span>レ</span><span>ジ</span><span>ャ</span><span>ー</span><span class="v3-badge text-2xl ml-2 text-red-500 drop-shadow-md" style="animation: none; transform: translateY(-5px);">V8.7</span>
-      </h1>
-      
-      <form id="loginForm" class="space-y-5 relative z-10">
-        <div>
-          <label class="block text-sm font-bold text-gray-800 mb-2 ml-1">APIキー (パスワード)</label>
-          <input 
-            type="password" 
-            id="apiKeyInput"
-            class="w-full bg-gray-50 border-2 border-gray-300 rounded-2xl px-4 py-4 text-base font-bold text-gray-900 outline-none focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-200 transition-all fun-input"
-            placeholder="Gemini API Key (テストは 'demo')"
-            required
-          />
-        </div>
-        <button 
-          type="submit"
-          class="w-full flex justify-center items-center px-6 py-4 bg-gradient-to-b from-gray-800 to-black hover:from-black hover:to-gray-900 text-white font-black rounded-2xl shadow-[0_6px_0_#333] active:shadow-[0_0px_0_#333] active:translate-y-[6px] transition-all text-lg"
-        >
-          出発進行ーっ！ 🚂💨
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <div id="mainApp" class="hidden max-w-6xl mx-auto space-y-4 p-3 sm:p-4 relative z-10">
-    <div class="flex justify-end gap-2 px-1 relative z-20 flex-wrap">
-      <button onclick="app.logout()" class="flex items-center gap-1.5 px-4 py-2 bg-gray-600 text-white text-xs font-black rounded-full hover:bg-gray-700 shadow-sm active:scale-95 transition-all border-2 border-gray-700">
-        <i data-lucide="log-out" class="w-4 h-4"></i> ログアウト
-      </button>
-      <button onclick="window.open('https://www.jra.go.jp/kouyu/app/', '_blank')" class="flex items-center gap-1.5 px-4 py-2 bg-white/90 backdrop-blur-sm text-green-800 text-xs font-black rounded-full border-2 border-green-300 hover:bg-green-100 shadow-sm active:scale-95 transition-all">
-        <i data-lucide="smartphone" class="w-4 h-4"></i> アプリ
-      </button>
-      <button onclick="window.open('https://www.ipat.jra.go.jp/', '_blank')" class="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white text-xs font-black rounded-full hover:bg-green-700 shadow-sm active:scale-95 transition-all border-2 border-green-700">
-        <i data-lucide="external-link" class="w-4 h-4"></i> 即PAT
-      </button>
-    </div>
-
-    <header class="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 rounded-3xl p-3 sm:p-5 flex items-center justify-between shadow-lg relative overflow-hidden border-b-4 border-orange-700">
-      <div class="absolute -right-2 -top-2 opacity-30 text-7xl animate-pulse">🏇</div>
-      <div class="absolute left-1/4 -top-6 opacity-20 text-6xl rotate-12">🎉</div>
-      <div class="absolute left-1/2 bottom-0 opacity-20 text-5xl -rotate-12">💰</div>
-
-      <div class="flex items-center space-x-3 relative z-10">
-        <div class="p-2 sm:p-3 bg-white/30 backdrop-blur-md rounded-2xl border-2 border-white/50 text-yellow-100 shadow-inner">
-          <i data-lucide="trophy" class="w-6 h-6 sm:w-8 sm:h-8"></i>
-        </div>
-        <div>
-          <h1 class="text-xl sm:text-3xl font-black leading-tight flex items-end momo-title tracking-tight pb-1">
-             <span>お</span><span>馬</span><span>さ</span><span>ん</span><span class="hidden sm:inline">ト</span><span class="hidden sm:inline">レ</span><span class="hidden sm:inline">ジ</span><span class="hidden sm:inline">ャ</span><span class="hidden sm:inline">ー</span><span class="v3-badge text-lg sm:text-xl ml-1 text-red-200 drop-shadow-sm" style="animation: none;">V8.7</span>
-          </h1>
-          <p class="text-[10px] sm:text-xs text-white font-black mt-1 drop-shadow-md bg-black/20 px-2 py-0.5 rounded-full w-fit">✨ 高精度アナリストモード稼働中 ✨</p>
-        </div>
-      </div>
-      <button onclick="app.renderRankings(true)" class="flex items-center px-4 py-2 sm:px-6 sm:py-3 font-black text-orange-900 bg-yellow-400 rounded-full hover:bg-yellow-300 shadow-[0_4px_0_#F57F17] active:shadow-[0_0px_0_#F57F17] active:translate-y-[4px] transition-all text-xs sm:text-base relative z-10 border-2 border-yellow-500">
-        <i data-lucide="sparkles" class="w-5 h-5 mr-1 text-orange-800"></i> <span class="hidden sm:inline">再計算する！</span><span class="sm:hidden">計算</span>
-      </button>
     </header>
 
-    <div class="bg-white/95 backdrop-blur-md p-3 sm:p-5 rounded-3xl border-2 border-white shadow-lg flex flex-col gap-3 relative z-10">
-      
-      <div id="raceTabsContainer" class="w-full overflow-x-auto custom-scrollbar pb-2 hidden">
-        <div id="raceTabs" class="flex gap-2 min-w-max px-1">
-          </div>
-      </div>
+    <main class="max-w-4xl mx-auto mt-6 px-4">
 
-      <div class="relative w-full">
-        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <i data-lucide="search" class="w-6 h-6 text-blue-600"></i>
-        </div>
-        <select id="raceSelect" onchange="app.changeRace(this.value)" class="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl pl-12 pr-10 py-4 text-sm sm:text-base font-black text-blue-900 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all appearance-none cursor-pointer shadow-sm fun-input">
-          <option value="" disabled selected>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>
-        </select>
-        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-          <i data-lucide="chevron-down" class="w-6 h-6 text-blue-500"></i>
-        </div>
-      </div>
-      
-      <button id="aiBtn" onclick="app.researchAI()" class="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-black rounded-2xl shadow-[0_6px_0_#1E3A8A] active:shadow-[0_0px_0_#1E3A8A] active:translate-y-[6px] transition-all text-base sm:text-xl border-2 border-blue-800">
-        <i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> 
-        <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>
-      </button>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 relative z-10">
-      <div class="space-y-3">
-        <div class="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-orange-300 shadow-lg overflow-hidden min-h-[300px] flex flex-col relative">
-          <div class="absolute bottom-0 left-0 opacity-[0.05] text-9xl pointer-events-none -mb-4 -ml-4">🐴</div>
-
-          <div class="p-3 sm:p-4 bg-gradient-to-r from-orange-100 to-yellow-50 flex justify-between items-center border-b-2 border-orange-200">
-            <div>
-              <h2 id="raceTitle" class="text-base sm:text-lg font-black text-orange-900 flex items-center drop-shadow-sm">
-                <i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-700"></i> データ入力ステーション
-              </h2>
-              <p id="raceSubtitle" class="text-[10px] sm:text-xs font-bold text-orange-800 flex items-center mt-1 hidden bg-white/70 px-2 py-0.5 rounded-md w-fit border border-orange-200">
-                <i data-lucide="calendar" class="w-3 h-3 mr-1"></i> <span id="raceSubtitleText"></span>
-              </p>
+        <!-- 画面1: 初期設定（APIキー入力） -->
+        <div id="init-screen" class="space-y-6">
+            <div class="wood-panel p-6 rounded-xl text-center">
+                <h2 class="text-2xl font-bold mb-4">🎫 アプリ利用開始</h2>
+                <p class="mb-4 text-sm text-amber-200">AIにレースを予想させるためのAPIキーを入力してください。<br>（「demo」と入力するとお試しモードで遊べます）</p>
+                <input type="password" id="api-key-input" placeholder="Gemini API Key または 'demo'" class="w-full max-w-md p-3 rounded text-black font-mono text-center mx-auto block mb-4 border-2 border-yellow-500 focus:outline-none">
+                <button onclick="App.startApp()" class="btn-matsuri text-xl font-bold py-3 px-10 rounded-full shadow-lg">入場する 🐎💨</button>
             </div>
-            <button onclick="app.addHorse()" class="flex items-center px-4 py-2.5 bg-white border-2 border-orange-400 text-orange-800 hover:bg-orange-100 text-xs sm:text-sm font-black rounded-full shadow-sm active:scale-95 transition-all">
-              <i data-lucide="plus" class="w-4 h-4 mr-1"></i> 追加
-            </button>
-          </div>
 
-          <div id="emptyDataMsg" class="flex-1 flex flex-col items-center justify-center min-h-[250px] text-orange-800">
-            <div class="relative">
-              <i data-lucide="bot" class="w-16 h-16 mb-3 text-orange-400 animate-bounce"></i>
-              <span class="absolute -top-2 -right-4 text-3xl animate-pulse">🎯</span>
-            </div>
-            <p class="font-black text-base text-orange-800 bg-orange-100 px-4 py-2 rounded-full border border-orange-300 shadow-sm">上の青いボタンで調査を開始！</p>
-          </div>
-
-          <div id="horseTableContainer" class="hidden p-3 overflow-x-auto custom-scrollbar relative z-10">
-            <div class="min-w-[760px] space-y-2 pb-2">
-              <div class="grid grid-cols-12 gap-2 text-[11px] font-black text-orange-900 text-center pb-1 px-1 border-b border-orange-200">
-                <div class="col-span-1">枠</div>
-                <div class="col-span-3 text-left pl-2">馬名</div>
-                <div class="col-span-2">オッズ</div>
-                <div class="col-span-2">SPEED</div>
-                <div class="col-span-3 flex justify-center gap-3"><span>騎手</span><span>調子</span><span>適性</span></div>
-                <div class="col-span-1"></div>
-              </div>
-              <div id="horseList" class="space-y-2.5 mt-2"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-3">
-        <div class="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-pink-300 shadow-lg overflow-hidden min-h-[400px] flex flex-col">
-          <div class="p-3 sm:p-4 bg-gradient-to-r from-gray-900 to-gray-800 flex justify-between items-center relative overflow-hidden border-b-4 border-pink-500">
-            <div class="absolute inset-0 opacity-20 flex flex-wrap gap-4 pointer-events-none p-2 items-center justify-around text-2xl">
-                <span class="animate-pulse">🎉</span><span class="animate-bounce">🎯</span><span>👑</span><span class="animate-pulse">🥕</span><span class="animate-bounce">💸</span><span>🎉</span>
-            </div>
-            <h2 class="text-base sm:text-xl font-black text-white flex items-center relative z-10 drop-shadow-md tracking-widest">
-              <i data-lucide="target" class="w-6 h-6 mr-2 text-pink-400"></i> ✨ お宝ランキング ✨
-            </h2>
-          </div>
-          
-          <div id="rankingContainer" class="p-3 sm:p-5 bg-gradient-to-b from-gray-100 to-pink-50/50 min-h-[350px] flex-1">
-             <div id="emptyRankingMsg" class="flex flex-col items-center justify-center py-16 text-gray-500">
-              <i data-lucide="target" class="w-16 h-16 mb-4 text-gray-400"></i>
-              <p class="font-black text-base text-gray-600">データがありません</p>
-            </div>
-            <div id="rankingList" class="space-y-5"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const apiKey = ""; 
-
-    const appHistory = [
-      { date: "2026-06-20", detail: "APIキー入力とdemoキー対応の実装" },
-      { date: "2026-06-21", detail: "APIからモデル一覧を自動取得し、PROを除外した中で最適なモデルを自動選択" },
-      { date: "2026-06-21", detail: "Liteモデルを除外し、429エラーを回避するフォールバック自己修復機能を追加" },
-      { date: "2026-06-21", detail: "桃鉄でゴールした時のような「わちゃわちゃ感・お祭り感」を全画面に徹底的に追加" },
-      { date: "2026-06-21", detail: "アプリ名を変更、フォントを丸く可愛くし、メーターの馬を前面に配置してぴょこぴょこ走るように改善" },
-      { date: "2026-06-21", detail: "アプリ名にバージョン(V2)を追加し、既存データをベースにした差分調査と評価基準の明確化による精度向上を実装" },
-      { date: "2026-06-21", detail: "スマホ発熱対策として背景パーティクルを削除。破損を防ぐためDOM生成・破棄型の『たまに横切るお馬さん』演出を安全に再実装し、V2と統合。" },
-      { date: "2026-06-21", detail: "【修正】たまに横切るおうまさんのz-indexを9999に変更し最前表示へ。また、絵文字の向きに合わせて進行方向のアニメーションを修正。" },
-      { date: "2026-06-21", detail: "【完全ローカル化(V3)】Firebaseへの依存を完全に排除し、ブラウザのローカルストレージのみで動作する安定版へ移行。起動時のエラーを防ぐためイベントリスナーによる安全な初期化を実装。" },
-      { date: "2026-06-21", detail: "【修正】AIによる差分調査・更新後にプルダウンリストが最新データで更新・選択されない不具合を修正(V4)" },
-      { date: "2026-06-21", detail: "【変更】ログイン画面の「安定動作ローカル版！」の表示を削除(V5)" },
-      { date: "2026-06-21", detail: "【改善】AIのプロンプトを調整し、「今週末の新規レースの追加」を最優先で調査するように指示を強化(V6)" },
-      { date: "2026-06-21", detail: "【改善】AIプロンプトをG3を含めた全重賞・主要レース網羅に変更し、横スクロールのタブ型UI切り替え機能を実装(V7)" },
-      { date: "2026-06-21", detail: "【バグ修正(V7.1)】誤って混入したコードによる構文エラーとカッコのズレを修正し、アプリが起動しない不具合を解決しました" },
-      { date: "2026-06-21", detail: "【バグ修正(V7.2)】AI調査が数分間進まなくなる問題に対応。通信のタイムアウト(45秒)設定と、エラー発生時に自動でログ画面を表示して原因を究明しやすくする機能を実装しました" },
-      { date: "2026-06-21", detail: "【根本治療(V8.0)】AIがG1しか取得しない問題を解決するため、プロンプトを「全レース対象」に強制。また、調査サイトの表記揺れによる同日付・類似名レースの重複を防ぐため完全統合と再評価を指示する厳格なルールを追加。" },
-      { date: "2026-06-21", detail: "【機能追加(V8.1)】異なるAPIキーをすぐに試せるよう、ヘッダーにログアウト機能を追加。" },
-      { date: "2026-06-21", detail: "【根本治療(V8.2)】エラーログ画面にDOM操作で「CSVで保存」ボタンを確実に追加。また、固定名による404エラーを防ぐため「APIからモデル一覧を自動取得・最適なモデルを動的ソートして使用する機能」を完全復活。" },
-      { date: "2026-06-21", detail: "【根本治療(V8.3)】429(Quota Exceeded)エラー検知時、全モデルへの無駄なフォールバックを停止し、API枠の超過を明確にユーザーへ通知する安全機構を追加。" },
-      { date: "2026-06-21", detail: "【根本治療(V8.4)】連続リクエストによるスパイク制限(429エラー)を防ぐため、モデル一覧をキャッシュ化し通信回数を半減。また、新規キーでのエラー原因（既存プロジェクトとの共有）を案内するようエラー文を強化。" },
-      { date: "2026-06-24", detail: "【バグ修正(V8.5)】AIの検索機能(Grounding)呼び出し時のJSONパラメータ名誤り(`Google Search`→`googleSearch`)を修正し、400エラーの根本原因を解消。" },
-      { date: "2026-06-24", detail: "【根本治療(V8.6)】初回利用時でも429エラーが出る不具合を修正。検索ツールと相性の悪い `latest` や `preview` モデルを自動選択から除外し、安定版モデルを正確に優先するように改善。" },
-      { date: "2026-06-24", detail: "【根本治療(V8.7)】旧バージョンのキャッシュに残っていた不安定なモデル(latest等)を読み込んでしまう不具合を修正。キャッシュキーを更新し、強制的に安定版モデル一覧を再取得するように改善。" }
-    ];
-    console.log("=== 📋 開発要件および実装履歴の自己チェック ===");
-    appHistory.forEach(h => console.log(`[OK] ${h.date}: ${h.detail}`));
-
-    function spawnCrossingHorse() {
-      const horse = document.createElement('div');
-      horse.className = 'horse-crossing drop-shadow-md';
-      horse.innerText = '🐎💨';
-      const top = Math.floor(Math.random() * 70) + 10;
-      horse.style.top = `${top}vh`;
-      const goRight = Math.random() > 0.5;
-      const duration = Math.random() * 2 + 2; 
-
-      if (goRight) {
-        horse.style.animation = `crossRight ${duration}s linear forwards`;
-      } else {
-        horse.style.animation = `crossLeft ${duration}s linear forwards`;
-      }
-
-      document.body.appendChild(horse);
-
-      horse.addEventListener('animationend', () => {
-        horse.remove();
-        const nextDelay = (Math.random() * 10000) + 5000;
-        setTimeout(spawnCrossingHorse, nextDelay);
-      });
-    }
-
-    document.addEventListener('click', (e) => {
-      const emoji = document.createElement('div');
-      emoji.innerText = '✨';
-      emoji.className = 'fixed text-2xl pointer-events-none z-[9999] transition-all duration-500 ease-out';
-      emoji.style.left = (e.clientX - 15) + 'px';
-      emoji.style.top = (e.clientY - 15) + 'px';
-      document.body.appendChild(emoji);
-      
-      requestAnimationFrame(() => {
-        emoji.style.transform = `translate(${(Math.random() - 0.5) * 100}px, ${(Math.random() - 1) * 100}px) scale(1.5) rotate(${Math.random() * 180}deg)`;
-        emoji.style.opacity = '0';
-      });
-      
-      setTimeout(() => emoji.remove(), 500);
-    });
-
-    function firePartyConfetti() {
-      if (typeof confetti !== 'function') return;
-      const duration = 2500;
-      const end = Date.now() + duration;
-
-      (function frame() {
-        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'] });
-        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'] });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      }());
-    }
-
-    const safeStorage = {
-      get: (key) => { try { return localStorage.getItem(key); } catch (e) { return window['_safe_' + key] || null; } },
-      set: (key, val) => { try { localStorage.setItem(key, val); } catch (e) { window['_safe_' + key] = val; } }
-    };
-
-    const state = {
-      races: [], selectedRaceId: '', localHorses: [], appApiKey: ''
-    };
-
-    const appLogger = {
-      logs: [],
-      log: function(level, message, details = {}) {
-        const time = new Date().toISOString();
-        this.logs.push({ time, level, message, details: JSON.stringify(details) });
-        console[level === 'error' ? 'error' : 'log'](`[${level.toUpperCase()}] ${message}`, details);
-      },
-      showModal: function(csvText) {
-        document.getElementById('errorLogText').value = csvText;
-        document.getElementById('errorLogModal').classList.remove('hidden');
-      },
-      downloadCSV: function() {
-        if (this.logs.length === 0) {
-            showToast("ダウンロードするログがありません", "info");
-            return;
-        }
-        const header = "Time,Level,Message,Details\n";
-        const csvContent = this.logs.map(l => `"${l.time}","${l.level}","${l.message}","${l.details.replace(/"/g, '""')}"`).join("\n");
-        const fullCsv = header + csvContent;
-        
-        try {
-          const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `umakatsu_error_log_${new Date().getTime()}.csv`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          showToast("CSVをダウンロードしました！", "success");
-        } catch (e) {
-          console.warn("直接ダウンロードが制限されています。", e);
-          showToast("ダウンロードがブロックされました", "error");
-        }
-      }
-    };
-
-    window.app = {
-      login: (e) => {
-        if (e) e.preventDefault();
-        let key = document.getElementById('apiKeyInput').value.trim();
-        if (!key) { showToast('APIキーを入力してください', 'error'); return; }
-        state.appApiKey = key;
-        safeStorage.set('umakatsu_api_key', key);
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        loadLocalData();
-      },
-
-      logout: () => {
-        safeStorage.set('umakatsu_api_key', '');
-        state.appApiKey = '';
-        document.getElementById('apiKeyInput').value = '';
-        document.getElementById('mainApp').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-        appLogger.log('info', 'ユーザーがログアウトしました');
-        showToast('ログアウトしました', 'info');
-      },
-
-      changeRace: (raceId) => {
-        state.selectedRaceId = raceId;
-        const currentRace = state.races.find(r => r.raceId === raceId);
-        state.localHorses = currentRace && currentRace.horses ? currentRace.horses : [];
-        renderRaceNavigation();
-        renderUI();
-      },
-
-      addHorse: () => {
-        if (!state.selectedRaceId) { showToast("レースを選択してください", "error"); return; }
-        const newNumber = state.localHorses.length > 0 ? Math.max(...state.localHorses.map(h => h.number)) + 1 : 1;
-        const newHorse = { id: Date.now(), number: newNumber, name: `追加馬${newNumber}`, odds: 10.0, speed: 70, jockey: 5, condition: 3, suitability: 3 };
-        state.localHorses.push(newHorse);
-        saveData();
-        renderUI();
-      },
-
-      removeHorse: (id) => {
-        state.localHorses = state.localHorses.filter(h => h.id !== id);
-        saveData();
-        renderUI();
-      },
-
-      updateHorse: (id, field, element) => {
-        let value = element.value;
-        if (field === 'name') value = String(value);
-        else value = Number(value);
-        state.localHorses = state.localHorses.map(h => h.id === id ? { ...h, [field]: value } : h);
-        saveData();
-        app.renderRankings(false);
-      },
-
-      renderRankings: (playEffect = false) => {
-        renderRankingPanel(playEffect);
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-      },
-
-      researchAI: async () => {
-        const btn = document.getElementById('aiBtn');
-        btn.disabled = true;
-        btn.classList.add('opacity-80');
-        btn.innerHTML = `<span class="horse-dash text-3xl mr-2 drop-shadow-md">🐴💨</span> <span class="font-black text-yellow-300">猛ダッシュ調査中...!!</span>`;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-
-        try {
-          appLogger.log('info', 'AI調査処理(V8.7 安定版モデルの正確な優先選択と強制再取得)を開始しました');
-          
-          let requestKey = state.appApiKey;
-          let candidateModelsNames = []; 
-          
-          if (requestKey === "demo" || requestKey === apiKey || requestKey === "") {
-            requestKey = apiKey; 
-            candidateModelsNames = ["gemini-2.5-flash"]; 
-          } else {
-            // 【V8.7 根本治療】キャッシュキーを「v87_」に変更し、過去の汚染されたキャッシュを完全に無視する
-            const cacheKey = 'umakatsu_cached_models_v87_' + requestKey.substring(0, 10);
-            const cachedModels = safeStorage.get(cacheKey);
-            
-            if (cachedModels) {
-                candidateModelsNames = JSON.parse(cachedModels);
-                appLogger.log('info', 'クリーンなキャッシュからAIモデル一覧を読み込みました（APIリクエスト節約）');
-            } else {
-                appLogger.log('info', 'APIから利用可能なモデル一覧を新規取得しています...');
-                try {
-                  const modelRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${requestKey}`);
-                  if(modelRes.ok) {
-                      const modelJson = await modelRes.json();
-                      
-                      // 検索ツールと相性の悪いエイリアスやテストモデルを完全に除外
-                      candidateModelsNames = modelJson.models
-                          .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-                          .map(m => m.name.replace("models/", ""))
-                          .filter(name => 
-                              !name.toLowerCase().includes("pro") && 
-                              !name.toLowerCase().includes("lite") && 
-                              name.includes("flash") &&
-                              !name.toLowerCase().includes("latest") && 
-                              !name.toLowerCase().includes("preview") &&
-                              !name.toLowerCase().includes("image") &&
-                              !name.toLowerCase().includes("tts")
-                          )
-                          .sort((a,b) => b.localeCompare(a)); 
-                      
-                      safeStorage.set(cacheKey, JSON.stringify(candidateModelsNames));
-                      appLogger.log('info', '利用可能な安定版AIモデルを取得し、キャッシュを更新しました', candidateModelsNames);
-                  } else {
-                      appLogger.log('warn', 'モデル一覧の取得に失敗しました。デフォルト設定を使用します。', {status: modelRes.status});
-                  }
-                } catch (err) {
-                  appLogger.log('warn', 'モデル一覧の取得中に通信エラーが発生しました', err.message);
-                }
-            }
-          }
-
-          if (!candidateModelsNames || candidateModelsNames.length === 0) {
-              candidateModelsNames = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.0-flash"];
-          }
-
-          const prompt = `
-            あなたはプロの競馬データアナリストです。
-            現在のデータ: ${JSON.stringify(state.races)}
-            
-            今週末に開催される【全レース】（G1などの重賞だけでなく、G2、G3、オープン、条件戦、平場なども含むすべてのレース）の最新出馬表をGoogle検索で徹底的に調査し、以下のルールでデータを更新してください。
-            
-            1. 【絶対ルール：レースの統合】同日付でレース名が類似しているもの（例：「〇〇記念」と「第X回〇〇記念」など、調査サイトによる表記揺れ）は、絶対に別のレースとして分けず、1つのレースデータとして完全に統合してください。
-            2. 【絶対ルール：お馬さんの網羅と評価】統合したレースデータに対して、出馬表に記載されている出走馬【全頭】を漏れなく含めてください。その上で、各馬のスピード、騎手、調子、適性を最新状況から評価し算出してください。
-            
-            出力は以下のJSON構造に厳密に従い、Markdownのコードブロックを含めず純粋なJSONのみ出力してください。
-            {"races": [{"raceId": "日付_レース名", "raceName": "文字列", "date": "YYYY-MM-DD", "track": "文字列", "distance": "文字列", "horses": [{"id": 1, "number": 1, "name": "文字列", "odds": 1.0, "speed": 50, "jockey": 5, "condition": 3, "suitability": 3}]}]}
-          `;
-
-          let success = false;
-          let data;
-          let targetModel = "";
-
-          for (let modelName of candidateModelsNames) {
-            targetModel = modelName;
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${requestKey}`;
-            
-            try {
-              appLogger.log('info', `${targetModel} にリクエストを送信中...`);
-              
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 45000);
-
-              const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: prompt }] }],
-                  tools: [{ googleSearch: {} }],
-                  systemInstruction: { parts: [{ text: "JSONのみを出力してください。" }]}
-                }),
-                signal: controller.signal
-              });
-              
-              clearTimeout(timeoutId);
-              
-              if (res.ok) {
-                data = await res.json();
-                appLogger.log('info', `${targetModel} からの応答を受信しました`);
-                success = true;
-                break;
-              } else {
-                const errText = await res.text();
-                appLogger.log('error', `${targetModel} のリクエスト失敗`, { status: res.status, err: errText });
-                
-                if (res.status === 429) {
-                    throw new Error("🚨 APIキーの利用制限に達しました。\n\n【重要】今日作ったばかりのキーでこのエラーが出る場合、既存のプロジェクト内にキーを作成していることが原因です。Google AI Studioで「Create API key in a new project」を選択し、完全に新しいプロジェクトでキーを発行し直してください！");
-                }
-              }
-            } catch (e) {
-              if (e.message.includes("APIキーの利用制限")) {
-                  throw e; 
-              } else if (e.name === 'AbortError') {
-                 appLogger.log('error', `${targetModel} の通信がタイムアウトしました。`);
-              } else {
-                 appLogger.log('error', `${targetModel} の通信エラー`, e.message);
-              }
-            }
-          }
-
-          if (!success) throw new Error("利用可能なAIモデルでの調査に失敗しました。タイムアウト等の可能性があります。");
-
-          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) {
-             appLogger.log('error', 'AIからのテキストが空でした', data);
-             throw new Error("AIからの応答が空でした。エラーログを確認してください。");
-          }
-
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
-          if (!jsonMatch) {
-             appLogger.log('error', 'JSON形式エラー', { receivedText: text.substring(0, 200) + "..." });
-             throw new Error("AIのデータ形式エラーです。もう一度お試しください。");
-          }
-
-          const parsed = JSON.parse(jsonMatch[0]);
-          
-          if (parsed && parsed.races && parsed.races.length > 0) {
-            parsed.races.forEach(newRace => {
-              const existingIdx = state.races.findIndex(r => r.raceName === newRace.raceName);
-              if (existingIdx >= 0) {
-                state.races[existingIdx] = { ...state.races[existingIdx], ...newRace };
-              } else {
-                state.races.push(newRace);
-              }
-            });
-
-            state.races.sort((a, b) => new Date(b.date) - new Date(a.date));
-            safeStorage.set('umakatsu_races', JSON.stringify(state.races));
-            renderRaceNavigation();
-            showToast("データ更新完了！", "success");
-            firePartyConfetti();
-            appLogger.log('info', 'AI調査処理が正常に完了しました');
-          } else {
-             appLogger.log('warn', 'レースデータが0件でした', parsed);
-             showToast("新しいレースデータは見つかりませんでした。", "info");
-          }
-        } catch (e) {
-          appLogger.log('error', '処理中に予期せぬエラーが発生しました', e.message);
-          showToast("エラーが発生しました。ログを確認してください。", "error");
-          
-          const logText = appLogger.logs.map(l => `[${l.time}] ${l.level.toUpperCase()}: ${l.message} \n詳細: ${l.details}`).join("\n\n");
-          appLogger.showModal(logText);
-        } finally {
-          btn.disabled = false;
-          btn.classList.remove('opacity-80');
-          btn.innerHTML = `<i data-lucide="bot" id="aiBtnIcon" class="w-7 h-7 mr-2"></i> <span id="aiBtnText">最新データで差分調査＆更新する 🚀</span>`;
-          if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-      }
-    };
-
-    document.getElementById('loginForm').addEventListener('submit', app.login);
-
-    function loadLocalData() {
-      const saved = safeStorage.get('umakatsu_races');
-      if (saved) {
-        state.races = JSON.parse(saved);
-      } else {
-        state.races = [];
-      }
-      
-      if (state.selectedRaceId) {
-        const currentRace = state.races.find(r => r.raceId === state.selectedRaceId);
-        if (currentRace) state.localHorses = currentRace.horses || [];
-      }
-      renderRaceNavigation();
-      renderUI();
-    }
-
-    function saveData() {
-      if (!state.selectedRaceId) return;
-      const raceIdx = state.races.findIndex(r => r.raceId === state.selectedRaceId);
-      if (raceIdx >= 0) {
-        state.races[raceIdx].horses = state.localHorses;
-      }
-      safeStorage.set('umakatsu_races', JSON.stringify(state.races));
-    }
-
-    function getNumberColor(num) {
-      const colors = [
-        'bg-white text-gray-900 border-gray-400', 'bg-gray-800 text-white border-gray-900', 'bg-red-600 text-white border-red-300', 'bg-blue-600 text-white border-blue-300',
-        'bg-yellow-400 text-gray-900 border-yellow-500', 'bg-green-600 text-white border-green-300', 'bg-orange-500 text-white border-orange-300', 'bg-pink-500 text-white border-pink-300',
-      ];
-      return colors[(num - 1) % 8] || colors[0];
-    }
-
-    function renderRaceNavigation() {
-      const select = document.getElementById('raceSelect');
-      const tabsContainer = document.getElementById('raceTabsContainer');
-      const tabs = document.getElementById('raceTabs');
-      
-      select.innerHTML = '<option value="" disabled ' + (!state.selectedRaceId ? 'selected' : '') + '>👉 ここをタップしてレースを選ぶか、AIに探してもらおう！</option>';
-      
-      tabs.innerHTML = '';
-      if (state.races.length > 0) {
-        tabsContainer.classList.remove('hidden');
-      } else {
-        tabsContainer.classList.add('hidden');
-      }
-
-      state.races.forEach(r => {
-        const isSelected = r.raceId === state.selectedRaceId;
-        const dateStr = r.date ? `${r.date} ` : '';
-        const shortDate = r.date ? r.date.split('-').slice(1).join('/') : ''; 
-        
-        select.innerHTML += `<option value="${r.raceId}" ${isSelected ? 'selected' : ''}>${dateStr}${r.raceName}</option>`;
-        
-        const activeClass = isSelected 
-          ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white border-blue-800 shadow-md transform scale-105' 
-          : 'bg-white text-blue-800 border-blue-200 hover:bg-blue-50 hover:-translate-y-1';
-          
-        tabs.innerHTML += `
-          <button onclick="app.changeRace('${r.raceId}')" class="px-4 py-2.5 rounded-xl border-2 font-black text-sm whitespace-nowrap transition-all shadow-sm ${activeClass}">
-            <span class="text-xs opacity-80 mr-1">${shortDate}</span>${r.raceName}
-          </button>
-        `;
-      });
-    }
-
-    function renderUI() {
-      const currentRaceInfo = state.races.find(r => r.raceId === state.selectedRaceId);
-      
-      document.getElementById('raceTitle').innerHTML = `<i data-lucide="flag" class="w-5 h-5 mr-1.5 text-orange-700"></i> データ入力ステーション`;
-      
-      if (currentRaceInfo) {
-        document.getElementById('raceSubtitle').classList.remove('hidden');
-        document.getElementById('raceSubtitleText').innerText = `${currentRaceInfo.date || '未定'} / ${currentRaceInfo.track}・${currentRaceInfo.distance}`;
-        document.getElementById('emptyDataMsg').classList.add('hidden');
-        document.getElementById('horseTableContainer').classList.remove('hidden');
-      } else {
-        document.getElementById('raceSubtitle').classList.add('hidden');
-        document.getElementById('emptyDataMsg').classList.remove('hidden');
-        document.getElementById('horseTableContainer').classList.add('hidden');
-      }
-
-      const listDiv = document.getElementById('horseList');
-      listDiv.innerHTML = '';
-      
-      state.localHorses.forEach(horse => {
-        listDiv.innerHTML += `
-          <div class="grid grid-cols-12 gap-2 items-center bg-white/95 p-2 sm:p-2.5 rounded-2xl border-2 border-orange-200 shadow-sm hover:shadow-md hover-hop transition-all">
-            <div class="col-span-1 flex justify-center">
-              <input type="number" value="${horse.number}" onchange="app.updateHorse(${horse.id}, 'number', this)" class="fun-input w-10 h-10 text-center font-black text-base rounded-xl border-2 border-gray-300 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 ${getNumberColor(horse.number)}" />
-            </div>
-            <div class="col-span-3">
-              <input type="text" value="${horse.name}" onchange="app.updateHorse(${horse.id}, 'name', this)" class="fun-input w-full bg-orange-50 border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-black text-gray-900 outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" />
-            </div>
-            <div class="col-span-2 flex justify-center">
-              <input type="number" step="0.1" value="${horse.odds}" onchange="app.updateHorse(${horse.id}, 'odds', this)" class="fun-input w-full max-w-[5rem] bg-yellow-100 border-2 border-yellow-300 rounded-xl px-2 py-2 text-right text-orange-900 font-black text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200" />
-            </div>
-            <div class="col-span-2 flex justify-center">
-              <input type="number" value="${horse.speed}" onchange="app.updateHorse(${horse.id}, 'speed', this)" class="fun-input w-full max-w-[4rem] bg-orange-50 border-2 border-orange-200 rounded-xl px-1 py-2 text-center font-black text-sm text-gray-900 outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" />
-            </div>
-            <div class="col-span-3 flex justify-center gap-1.5">
-                <input type="number" max="10" min="1" value="${horse.jockey}" onchange="app.updateHorse(${horse.id}, 'jockey', this)" class="fun-input w-9 h-9 bg-orange-50 border-2 border-orange-200 rounded-xl text-center text-sm font-black text-gray-800 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" title="騎手" />
-                <input type="number" max="5" min="1" value="${horse.condition}" onchange="app.updateHorse(${horse.id}, 'condition', this)" class="fun-input w-9 h-9 bg-orange-50 border-2 border-orange-200 rounded-xl text-center text-sm font-black text-gray-800 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" title="調子" />
-                <input type="number" max="5" min="1" value="${horse.suitability}" onchange="app.updateHorse(${horse.id}, 'suitability', this)" class="fun-input w-9 h-9 bg-orange-50 border-2 border-orange-200 rounded-xl text-center text-sm font-black text-gray-800 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-200" title="適性" />
-            </div>
-            <div class="col-span-1 flex justify-center">
-              <button onclick="app.removeHorse(${horse.id})" class="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-xl active:scale-90 transition-all font-black"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-            </div>
-          </div>
-        `;
-      });
-
-      renderRankingPanel();
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-
-    function renderRankingPanel(playEffect = false) {
-      const rankingList = document.getElementById('rankingList');
-      const emptyMsg = document.getElementById('emptyRankingMsg');
-      
-      rankingList.innerHTML = '';
-
-      if (!state.selectedRaceId || state.localHorses.length === 0) {
-        emptyMsg.classList.remove('hidden');
-        return;
-      }
-      emptyMsg.classList.add('hidden');
-
-      const scoredHorses = state.localHorses.map(horse => {
-        const rawScore = (Number(horse.speed) * 0.5) + (Number(horse.jockey) * 10 * 0.2) + (Number(horse.condition) * 20 * 0.15) + (Number(horse.suitability) * 20 * 0.15);
-        return { ...horse, rawScore, weight: Math.pow(rawScore, 3) };
-      });
-      const totalWeight = scoredHorses.reduce((sum, h) => sum + h.weight, 0);
-
-      const analyzed = scoredHorses.map(horse => {
-        const predictedProb = totalWeight > 0 ? horse.weight / totalWeight : 0;
-        const impliedProb = horse.odds > 0 ? 1 / Number(horse.odds) : 0;
-        const expectedValue = predictedProb * Number(horse.odds);
-
-        let evaluation = { label: 'C', word: '見送り', style: 'bg-gray-300 text-gray-800 border-gray-400 font-bold' };
-        if (expectedValue >= 1.5) evaluation = { label: 'SS', word: '超大当たり!', style: 'bg-gradient-to-r from-pink-500 to-rose-600 text-white border-transparent shadow-[0_0_10px_rgba(236,72,153,0.8)]' };
-        else if (expectedValue >= 1.2) evaluation = { label: 'S', word: '大チャンス', style: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white border-transparent shadow-[0_0_8px_rgba(249,115,22,0.8)]' };
-        else if (expectedValue >= 1.0) evaluation = { label: 'A', word: 'イイね!', style: 'bg-yellow-300 text-orange-900 border-yellow-500 font-black' };
-        else if (expectedValue >= 0.8) evaluation = { label: 'B', word: 'おさえ', style: 'bg-blue-100 text-blue-900 border-blue-400 font-bold' };
-
-        return {
-          ...horse,
-          predictedProb: (predictedProb * 100).toFixed(1),
-          impliedProb: (impliedProb * 100).toFixed(1),
-          expectedValue: expectedValue.toFixed(2),
-          evaluation
-        };
-      }).sort((a, b) => b.expectedValue - a.expectedValue);
-
-      if (playEffect && analyzed.length > 0 && analyzed[0].expectedValue >= 1.2) {
-         firePartyConfetti();
-      }
-
-      analyzed.forEach((horse, index) => {
-        const width = Math.min(horse.expectedValue * 100 / 2.0, 100);
-        const barColor = horse.expectedValue >= 1.5 ? 'bg-gradient-to-r from-pink-500 to-rose-600' : horse.expectedValue >= 1.2 ? 'bg-gradient-to-r from-orange-400 to-orange-600' : horse.expectedValue >= 1.0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : 'bg-gray-400';
-        const fireIcon = horse.expectedValue >= 1.0 ? '🔥 ' : '';
-        const numColor = getNumberColor(horse.number);
-        
-        let rankIcon = '';
-        let extraCardClass = '';
-        let extraNameDecor = '';
-        
-        if (index === 0) {
-            rankIcon = '<i data-lucide="crown" class="w-6 h-6 text-yellow-500 absolute -top-2 -left-2 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] z-20 animate-bounce"></i>';
-            if(horse.expectedValue >= 1.2) {
-                extraCardClass = 'gold-pulse scale-[1.02] z-10 border-yellow-400'; 
-                extraNameDecor = '✨';
-            }
-        } else if (index === 1) rankIcon = '<i data-lucide="crown" class="w-5 h-5 text-gray-400 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
-        else if (index === 2) rankIcon = '<i data-lucide="crown" class="w-5 h-5 text-orange-800 absolute -top-1 -left-1 drop-shadow-md z-10"></i>';
-
-        rankingList.innerHTML += `
-          <div class="bg-white rounded-3xl border-2 border-pink-200 p-4 shadow-md hover:shadow-lg transition-all relative overflow-visible ${extraCardClass}">
-            <div class="flex justify-between items-center mb-3">
-              <div class="flex items-center gap-3 relative z-10">
-                <div class="relative">
-                  ${rankIcon}
-                  <div class="w-10 h-10 flex items-center justify-center rounded-xl border-2 font-black text-lg shadow-sm ${numColor}">${horse.number}</div>
+            <!-- 要求歴・実装歴パネル -->
+            <div class="bg-white/90 border-2 border-amber-700 rounded-xl p-4 shadow-md">
+                <h3 class="font-bold text-amber-900 border-b-2 border-amber-700 mb-2 pb-1 flex items-center justify-between cursor-pointer" onclick="document.getElementById('history-content').classList.toggle('hidden')">
+                    <span>📜 アプリ開発履歴 (要求歴/実装歴)</span>
+                    <span class="text-sm bg-amber-200 px-2 rounded">開閉 ▼</span>
+                </h3>
+                <div id="history-content" class="hidden text-sm space-y-3 mt-3 text-gray-800">
+                    <div>
+                        <strong class="text-green-700">[要求] 2026-06-24:</strong> 初心者でも楽しめる競馬の期待値調査アプリ（HTML形式）。お祭り感（黄、茶、緑）。架空馬券シミュレーター機能付き。
+                    </div>
+                    <div>
+                        <strong class="text-blue-700">[実装] KeibaTreasure_V1.0:</strong> Tailwindによるお祭りUI実装。Gemini APIを用いた架空レース・お宝予想生成機能。オッズに基づく確率ベースのレース結果シミュレーター。所持金管理と馬券（単勝・馬連）購入システム。
+                    </div>
+                    <div>
+                        <strong class="text-green-700">[要求/ルール] 過去の要望:</strong> demoモード対応、フォールダウンでのAIモデル検証、完全なコード出力、アプリ内動作ログとCSV保存、要求・実装歴の表示。
+                    </div>
+                    <div>
+                        <strong class="text-blue-700">[実装] KeibaTreasure_V1.0:</strong> `AppLogger`オブジェクトによるログ記録・CSV出力実装。フォールダウンロジック(`generateContentWithFallback`)の実装。demoモード時のモックデータ返却処理実装。
+                    </div>
                 </div>
-                <span class="font-black text-gray-900 text-lg sm:text-xl tracking-tight drop-shadow-sm">${extraNameDecor}${horse.name}${extraNameDecor}</span>
-              </div>
-              <span class="text-xs sm:text-sm font-black px-4 py-2 rounded-full border ${horse.evaluation.style} relative z-10 tracking-wider">${horse.evaluation.word}</span>
+            </div>
+        </div>
+
+        <!-- 画面2: ロード中画面 -->
+        <div id="loading-screen" class="hidden text-center py-20">
+            <div class="text-6xl animate-bounce mb-4">🐎🏇🐎</div>
+            <h2 class="text-2xl font-bold text-amber-900">AIが最新のレース情報を調査中...</h2>
+            <p class="text-amber-700 mt-2">過去の勝率や近況を分析し、お宝馬を探しています！</p>
+        </div>
+
+        <!-- 画面3: メイン画面 (予想と馬券購入) -->
+        <div id="main-screen" class="hidden space-y-6">
+            
+            <div class="flex justify-between items-end">
+                <h2 class="text-2xl font-black text-amber-900 bg-yellow-300 inline-block px-4 py-1 rounded-t-lg border-2 border-b-0 border-amber-700">第1回 AI記念 (芝2000m)</h2>
+                <button onclick="App.createNewRace()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded border border-gray-400">別のレースを探す</button>
             </div>
 
-            <div class="mb-3 bg-gradient-to-r from-gray-50 to-white p-3 rounded-2xl border-2 border-gray-200 relative z-10 backdrop-blur-sm mt-5 shadow-inner">
-              <div class="flex justify-between text-xs sm:text-sm font-black mb-1.5">
-                <span class="text-gray-800">期待値メーター</span>
-                <span class="${horse.expectedValue >= 1.0 ? 'text-pink-600 text-base drop-shadow-md' : 'text-gray-600'}">${fireIcon}${horse.expectedValue}</span>
-              </div>
-              <div class="h-3 w-full bg-gray-200 rounded-full overflow-visible relative mt-4 shadow-inner border border-gray-300">
-                <div class="racing-horse z-20" style="left: ${width}%">🏇</div>
-                <div class="absolute top-0 bottom-0 w-1 bg-red-600 z-10 shadow-[0_0_5px_red]" style="left: 50%"></div>
-                <div class="h-full ${barColor} rounded-full transition-all duration-1000 ease-out relative z-0 shadow-sm" style="width: ${width}%"></div>
-              </div>
+            <!-- 出馬表とお宝情報 -->
+            <div class="grass-panel p-4 rounded-b-xl rounded-tr-xl shadow-lg">
+                <h3 class="text-xl font-bold mb-4 text-yellow-300 border-b border-yellow-300 pb-2">📋 出馬表 ＆ AIお宝評価</h3>
+                <div id="horse-list" class="space-y-3">
+                    <!-- JSで動的に生成 -->
+                </div>
             </div>
 
-            <div class="flex justify-between text-center text-xs sm:text-sm pt-2 px-2 relative z-10 bg-gray-100/80 rounded-xl py-2 border border-gray-200">
-              <div><p class="text-gray-700 mb-1 text-[10px] sm:text-xs font-bold">AI勝率</p><p class="font-black text-blue-700 text-base drop-shadow-sm">${horse.predictedProb}%</p></div>
-              <div><p class="text-gray-700 mb-1 text-[10px] sm:text-xs font-bold">みんなの勝率</p><p class="font-black text-gray-800 text-base">${horse.impliedProb}%</p></div>
-              <div><p class="text-gray-700 mb-1 text-[10px] sm:text-xs font-bold">オッズ</p><p class="font-black text-orange-700 text-base drop-shadow-sm">${horse.odds}倍</p></div>
+            <!-- 馬券購入エリア -->
+            <div class="wood-panel p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold mb-4 text-yellow-300 flex items-center gap-2">🎫 馬券購入所</h3>
+                
+                <div class="bg-amber-100/10 p-4 rounded border border-amber-600/50 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm mb-1 text-amber-200">券種</label>
+                            <select id="bet-type" class="w-full p-2 rounded text-black bg-white" onchange="AppUI.updateBetInputs()">
+                                <option value="win">単勝 (1着を当てる)</option>
+                                <option value="quinella">馬連 (1着と2着の組み合わせを当てる)</option>
+                            </select>
+                        </div>
+                        <div id="horse-select-1-container">
+                            <label class="block text-sm mb-1 text-amber-200" id="label-horse-1">馬番</label>
+                            <select id="bet-horse-1" class="w-full p-2 rounded text-black bg-white"></select>
+                        </div>
+                        <div id="horse-select-2-container" class="hidden">
+                            <label class="block text-sm mb-1 text-amber-200">馬番 (相手)</label>
+                            <select id="bet-horse-2" class="w-full p-2 rounded text-black bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1 text-amber-200">金額 (円)</label>
+                            <input type="number" id="bet-amount" class="w-full p-2 rounded text-black bg-white" value="1000" min="100" step="100">
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <button onclick="App.addBet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow">カートに追加 🛒</button>
+                    </div>
+                </div>
+
+                <!-- 購入予定リスト -->
+                <div class="bg-white text-black p-4 rounded-lg">
+                    <h4 class="font-bold border-b-2 border-gray-300 mb-2 pb-1">現在の購入予定</h4>
+                    <ul id="cart-list" class="space-y-1 text-sm mb-4 min-h-[50px]">
+                        <li class="text-gray-500 italic">まだ馬券がありません</li>
+                    </ul>
+                    <div class="flex justify-between items-center border-t-2 border-gray-300 pt-2">
+                        <span class="font-bold">合計: <span id="cart-total" class="text-red-600">0</span> 円</span>
+                        <button onclick="App.startRace()" class="btn-matsuri py-2 px-8 rounded font-bold text-lg">レース発走！ 🏁</button>
+                    </div>
+                </div>
             </div>
-          </div>
-        `;
-      });
+
+        </div>
+
+        <!-- 画面4: レース結果画面 -->
+        <div id="result-screen" class="hidden space-y-6">
+            <div class="treasure-card p-8 rounded-xl text-center relative overflow-hidden">
+                <div class="absolute -top-10 -left-10 text-9xl opacity-20">🎊</div>
+                <div class="absolute -bottom-10 -right-10 text-9xl opacity-20">🎯</div>
+                
+                <h2 class="text-4xl font-black text-red-600 mb-6 drop-shadow-md blink-text">レース結果発表！</h2>
+                
+                <div class="bg-white/80 border-4 border-amber-600 rounded-lg p-6 mb-6 inline-block w-full max-w-lg mx-auto">
+                    <div class="flex justify-center items-center gap-4 text-2xl font-bold mb-4">
+                        <span class="text-yellow-600">1着</span>
+                        <span id="result-1st-number" class="bg-black text-white rounded-full w-10 h-10 flex items-center justify-center">1</span>
+                        <span id="result-1st-name" class="text-3xl text-black">馬名</span>
+                    </div>
+                    <div class="flex justify-center items-center gap-4 text-xl font-bold">
+                        <span class="text-gray-500">2着</span>
+                        <span id="result-2nd-number" class="bg-black text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">2</span>
+                        <span id="result-2nd-name" class="text-2xl text-black">馬名</span>
+                    </div>
+                </div>
+
+                <div id="payout-result" class="bg-amber-900 text-white p-6 rounded-lg shadow-inner max-w-xl mx-auto">
+                    <!-- 払い戻し結果がここにJSで入る -->
+                </div>
+
+                <div class="mt-8">
+                    <button onclick="App.resetForNextRace()" class="btn-green text-xl font-bold py-3 px-10 rounded-full shadow-lg">次のレースへ向かう 🐎</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- ロギングシステム ---
+        const AppLogger = {
+            logs: [],
+            log: function(message, level = 'INFO') {
+                const timestamp = new Date().toISOString();
+                const logEntry = `[${timestamp}] [${level}] ${message}`;
+                this.logs.push(logEntry);
+                console.log(logEntry);
+            },
+            error: function(message, errorObj = null) {
+                const errorDetails = errorObj ? ` | Details: ${errorObj.message || errorObj}` : '';
+                this.log(`${message}${errorDetails}`, 'ERROR');
+            },
+            exportCSV: function() {
+                if (this.logs.length === 0) {
+                    alert("ログがありません。");
+                    return;
+                }
+                const header = "Timestamp,Level,Message\n";
+                const csvRows = this.logs.map(log => {
+                    // 正規表現で分割 [YYYY-MM-DDTHH:mm:ss.sssZ] [LEVEL] Message
+                    const match = log.match(/^\[(.*?)\]\s\[(.*?)\]\s(.*)$/);
+                    if(match) {
+                        // カンマや改行を含むメッセージをエスケープ
+                        const msg = match[3].replace(/"/g, '""');
+                        return `"${match[1]}","${match[2]}","${msg}"`;
+                    }
+                    return `,, "${log.replace(/"/g, '""')}"`;
+                });
+                
+                const csvContent = "\uFEFF" + header + csvRows.join("\n"); // BOM付与でExcelの文字化け防止
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `KeibaTreasure_Logs_${new Date().getTime()}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                this.log("ログをCSVとしてエクスポートしました。");
+            }
+        };
+
+        // --- アプリケーションの状態管理 ---
+        const State = {
+            version: "V1.0",
+            apiKey: "",
+            isDemo: false,
+            wallet: 10000,
+            currentRace: {
+                horses: [], // AIから取得した馬データ
+            },
+            cart: [], // 購入予定の馬券 [{id, type, horse1, horse2, amount}]
+            
+            // 使用するAIモデルのリスト（フォールダウン検証用）
+            // preview環境の制限を考慮し、最も確実なものを先頭に。
+            aiModels: [
+                "gemini-2.5-flash-preview-09-2025", 
+                "gemini-1.5-pro", 
+                "gemini-1.5-flash"
+            ]
+        };
+
+        // --- AI(Gemini API) 連携 ---
+        const GeminiAPI = {
+            generateContentWithFallback: async function(prompt) {
+                if (State.isDemo) {
+                    AppLogger.log("デモモードでモックデータを返却します。");
+                    return this.getMockData();
+                }
+
+                if (!State.apiKey) {
+                    throw new Error("APIキーが設定されていません。");
+                }
+
+                for (let i = 0; i < State.aiModels.length; i++) {
+                    const modelName = State.aiModels[i];
+                    AppLogger.log(`モデル ${modelName} でAPI通信を試行します (${i+1}/${State.aiModels.length})`);
+                    
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${State.apiKey}`;
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: prompt }] }],
+                                generationConfig: {
+                                    temperature: 0.7,
+                                    responseMimeType: "application/json" // JSON形式を要求
+                                }
+                            })
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`HTTP Error: ${response.status} - ${errorText}`);
+                        }
+
+                        const data = await response.json();
+                        if (data.candidates && data.candidates[0].content.parts[0].text) {
+                            const resultText = data.candidates[0].content.parts[0].text;
+                            AppLogger.log(`モデル ${modelName} での生成に成功しました。`);
+                            return resultText;
+                        } else {
+                            throw new Error("予期せぬレスポンスフォーマットです。");
+                        }
+                    } catch (error) {
+                        AppLogger.error(`モデル ${modelName} でのエラー`, error);
+                        // 最後のモデルでも失敗した場合はエラーを投げる
+                        if (i === State.aiModels.length - 1) {
+                            throw new Error("全てのAIモデルでデータ生成に失敗しました。APIキーや通信環境を確認してください。");
+                        }
+                        AppLogger.log("次のモデルへフォールダウンします。");
+                    }
+                }
+            },
+
+            fetchRaceData: async function() {
+                const prompt = `
+あなたは競馬予想のプロフェッショナルAIです。架空の競馬レース（8頭立て）を作成し、それぞれの馬の情報をJSON形式で出力してください。
+各馬には以下の情報を含めてください。初心者が見て「お宝だ！」とワクワクするようなコメントを添えてください。
+
+必須フォーマット（必ずこの形式のJSONのみを出力し、マークダウン記法等は使用しないでください）:
+{
+  "horses": [
+    {
+      "number": 1,
+      "name": "馬の名前（ユニークで競馬らしい名前）",
+      "odds": 3.5, // 1.1 〜 50.0 の間
+      "condition": "絶好調", // 近況
+      "winRate": "25%", // 過去の勝率
+      "treasureScore": 85, // 期待値（お宝度） 1〜100。高いほどおすすめ。1頭は必ず90以上の「大穴・お宝」を作ること。
+      "reason": "お宝度を裏付ける理由。初心者が納得するような熱いコメント。"
     }
+    // ... 8頭分
+  ]
+}`;
+                try {
+                    const rawData = await this.generateContentWithFallback(prompt);
+                    // 万が一JSONがマークダウンブロックで囲まれていた場合の対処 (根本治療)
+                    const cleanedData = rawData.replace(/```json\n?|\n?```/g, '').trim();
+                    const parsedData = JSON.parse(cleanedData);
+                    
+                    if(!parsedData.horses || parsedData.horses.length !== 8) {
+                        throw new Error("AIが正しいフォーマット（8頭分のデータ）を返しませんでした。");
+                    }
+                    return parsedData.horses;
+                } catch (error) {
+                    AppLogger.error("レースデータ生成・パース失敗", error);
+                    alert("レースデータの生成に失敗しました。デモモードに切り替えますか？\n詳細: " + error.message);
+                    State.isDemo = true;
+                    return JSON.parse(this.getMockData()).horses;
+                }
+            },
 
-    let toastTimeout;
-    function showToast(msg, type = 'info') {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.innerText = msg;
-      
-      if (type === 'error') {
-        toast.style.backgroundColor = '#fee2e2';
-        toast.style.color = '#991b1b';
-      } else {
-        toast.style.backgroundColor = '#1f2937';
-        toast.style.color = '#ffffff';
-      }
+            getMockData: function() {
+                return JSON.stringify({
+                    "horses": [
+                        {"number": 1, "name": "サイレンススズヤ", "odds": 1.5, "condition": "絶好調", "winRate": "60%", "treasureScore": 60, "reason": "圧倒的な一番人気。堅実だが配当妙味は薄いか。"},
+                        {"number": 2, "name": "ゴールドハンター", "odds": 8.5, "condition": "上積みあり", "winRate": "15%", "treasureScore": 88, "reason": "前走は不利があった。今回は絶好の枠順で巻き返し必至のお宝馬！"},
+                        {"number": 3, "name": "マツリダワッショイ", "odds": 35.0, "condition": "一発あり", "winRate": "5%", "treasureScore": 95, "reason": "超大穴！調教での動きは一変しており、展開次第で大波乱を演出する可能性大！"},
+                        {"number": 4, "name": "スピードスター", "odds": 4.2, "condition": "好調維持", "winRate": "25%", "treasureScore": 75, "reason": "安定感抜群。軸馬としては最適。"},
+                        {"number": 5, "name": "タフネスボーイ", "odds": 12.0, "condition": "疲れ残り", "winRate": "10%", "treasureScore": 40, "reason": "連戦の疲れが見える。今回は見送りか。"},
+                        {"number": 6, "name": "ラッキーセブン", "odds": 7.0, "condition": "気配良好", "winRate": "18%", "treasureScore": 70, "reason": "コース適性抜群。馬券の端には入れておきたい。"},
+                        {"number": 7, "name": "ミッドナイトシャドウ", "odds": 22.0, "condition": "馬体増", "winRate": "8%", "treasureScore": 65, "reason": "休養明けだが馬体は成長。次走に期待だが今回も軽視は禁物。"},
+                        {"number": 8, "name": "グリーンアロー", "odds": 5.5, "condition": "順調", "winRate": "20%", "treasureScore": 80, "reason": "前走快勝の勢いそのまま。ここでも十分に通用する器。"}
+                    ]
+                });
+            }
+        };
 
-      toast.classList.remove('hidden');
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
-    }
+        // --- UI操作 ---
+        const AppUI = {
+            switchScreen: function(screenId) {
+                ['init-screen', 'loading-screen', 'main-screen', 'result-screen'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+                document.getElementById(screenId).classList.remove('hidden');
+            },
+            
+            updateWallet: function() {
+                document.getElementById('wallet-amount').textContent = State.wallet.toLocaleString();
+            },
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const savedKey = safeStorage.get('umakatsu_api_key');
-      if (savedKey) {
-        document.getElementById('apiKeyInput').value = savedKey;
-        app.login();
-      }
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    });
+            renderHorseList: function() {
+                const listContainer = document.getElementById('horse-list');
+                const select1 = document.getElementById('bet-horse-1');
+                const select2 = document.getElementById('bet-horse-2');
+                
+                listContainer.innerHTML = '';
+                select1.innerHTML = '';
+                select2.innerHTML = '';
 
-    window.addEventListener('load', () => {
-        setTimeout(spawnCrossingHorse, 3000);
-    });
+                State.currentRace.horses.forEach(horse => {
+                    // お宝度による見た目の変更
+                    let treasureClass = "bg-white text-black";
+                    let treasureIcon = "";
+                    if (horse.treasureScore >= 90) {
+                        treasureClass = "bg-yellow-200 text-red-700 font-bold shining-border border-2 border-yellow-500";
+                        treasureIcon = "👑 超お宝!!";
+                    } else if (horse.treasureScore >= 80) {
+                        treasureClass = "bg-amber-100 text-amber-900 border border-amber-400";
+                        treasureIcon = "✨ お宝";
+                    }
 
-  </script>
+                    const html = `
+                        <div class="${treasureClass} p-3 rounded-lg flex flex-col md:flex-row items-center gap-4 shadow transition hover:scale-[1.01]">
+                            <div class="flex-shrink-0 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold border-2 border-white">
+                                ${horse.number}
+                            </div>
+                            <div class="flex-grow w-full md:w-auto">
+                                <div class="flex justify-between items-end mb-1 border-b border-gray-300 pb-1">
+                                    <span class="text-lg font-black">${horse.name}</span>
+                                    <span class="text-sm font-bold bg-white px-2 py-0.5 rounded border border-gray-400">オッズ: <span class="text-red-600 text-lg">${horse.odds}</span>倍</span>
+                                </div>
+                                <div class="text-xs md:text-sm grid grid-cols-2 gap-2 mt-2">
+                                    <div><span class="text-gray-500">近況:</span> ${horse.condition}</div>
+                                    <div><span class="text-gray-500">勝率:</span> ${horse.winRate}</div>
+                                </div>
+                                <div class="mt-2 bg-black/5 p-2 rounded text-sm">
+                                    <span class="font-bold">期待値: ${horse.treasureScore}/100 ${treasureIcon}</span><br>
+                                    <span class="italic">🗣️ AI:「${horse.reason}」</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', html);
+
+                    // セレクトボックスのオプション追加
+                    const option = `<option value="${horse.number}">${horse.number}番 ${horse.name}</option>`;
+                    select1.insertAdjacentHTML('beforeend', option);
+                    select2.insertAdjacentHTML('beforeend', option);
+                });
+            },
+
+            updateBetInputs: function() {
+                const betType = document.getElementById('bet-type').value;
+                const horse2Container = document.getElementById('horse-select-2-container');
+                const label1 = document.getElementById('label-horse-1');
+
+                if (betType === 'win') {
+                    horse2Container.classList.add('hidden');
+                    label1.textContent = "馬番";
+                } else if (betType === 'quinella') {
+                    horse2Container.classList.remove('hidden');
+                    label1.textContent = "馬番 (軸)";
+                }
+            },
+
+            renderCart: function() {
+                const cartList = document.getElementById('cart-list');
+                const totalSpan = document.getElementById('cart-total');
+                cartList.innerHTML = '';
+                
+                if (State.cart.length === 0) {
+                    cartList.innerHTML = '<li class="text-gray-500 italic">まだ馬券がありません</li>';
+                    totalSpan.textContent = "0";
+                    return;
+                }
+
+                let total = 0;
+                State.cart.forEach(bet => {
+                    total += bet.amount;
+                    let typeText = bet.type === 'win' ? '単勝' : '馬連';
+                    let horseText = bet.type === 'win' ? `${bet.horse1}番` : `${bet.horse1}番 - ${bet.horse2}番`;
+                    
+                    const li = document.createElement('li');
+                    li.className = "flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-200";
+                    li.innerHTML = `
+                        <span><span class="font-bold text-amber-800">[${typeText}]</span> ${horseText}</span>
+                        <span>
+                            <span class="font-bold">${bet.amount.toLocaleString()}</span>円
+                            <button onclick="App.removeBet('${bet.id}')" class="ml-2 text-red-500 hover:text-red-700 font-bold text-lg">×</button>
+                        </span>
+                    `;
+                    cartList.appendChild(li);
+                });
+                totalSpan.textContent = total.toLocaleString();
+            },
+
+            showResult: function(results, payoutSummary) {
+                document.getElementById('result-1st-number').textContent = results[0].number;
+                document.getElementById('result-1st-name').textContent = results[0].name;
+                document.getElementById('result-2nd-number').textContent = results[1].number;
+                document.getElementById('result-2nd-name').textContent = results[1].name;
+
+                const payoutDiv = document.getElementById('payout-result');
+                payoutDiv.innerHTML = '<h3 class="text-xl font-bold mb-3 border-b border-amber-600 pb-2 text-yellow-300">💰 収支報告</h3>';
+
+                if (payoutSummary.details.length === 0) {
+                    payoutDiv.innerHTML += '<p class="text-center text-lg py-4">残念... はずれです😢</p>';
+                } else {
+                    const ul = document.createElement('ul');
+                    ul.className = "space-y-2 mb-4";
+                    payoutSummary.details.forEach(detail => {
+                        ul.innerHTML += `<li class="flex justify-between border-b border-amber-700/50 pb-1"><span>${detail.name}</span><span class="text-yellow-400 font-bold">+${detail.amount.toLocaleString()}円</span></li>`;
+                    });
+                    payoutDiv.appendChild(ul);
+                }
+
+                const totalClass = payoutSummary.net >= 0 ? "text-yellow-400" : "text-red-400";
+                const totalSign = payoutSummary.net >= 0 ? "+" : "";
+                
+                payoutDiv.innerHTML += `
+                    <div class="mt-4 pt-2 border-t-2 border-amber-500 text-right text-lg">
+                        <p>投資: ${payoutSummary.invest.toLocaleString()}円</p>
+                        <p>払戻: ${payoutSummary.return.toLocaleString()}円</p>
+                        <p class="text-2xl font-black mt-2">収支: <span class="${totalClass}">${totalSign}${payoutSummary.net.toLocaleString()}円</span></p>
+                    </div>
+                `;
+
+                this.switchScreen('result-screen');
+                this.updateWallet();
+            }
+        };
+
+        // --- アプリケーション ロジック ---
+        const App = {
+            init: function() {
+                document.getElementById('version-display').textContent = State.version;
+                AppLogger.log(`アプリケーション初期化完了 (Version: ${State.version})`);
+                AppUI.updateWallet();
+            },
+
+            startApp: function() {
+                const keyInput = document.getElementById('api-key-input').value.trim();
+                if (keyInput === "") {
+                    alert("APIキーを入力するか、'demo'と入力してください。");
+                    return;
+                }
+
+                if (keyInput.toLowerCase() === 'demo') {
+                    State.isDemo = true;
+                    State.apiKey = "demo-key";
+                    AppLogger.log("デモモードで起動しました。");
+                } else {
+                    State.isDemo = false;
+                    State.apiKey = keyInput;
+                    AppLogger.log("APIキーが設定されました。本番モードで起動します。");
+                }
+
+                this.createNewRace();
+            },
+
+            createNewRace: async function() {
+                AppUI.switchScreen('loading-screen');
+                State.cart = []; // カートリセット
+                AppUI.renderCart();
+
+                try {
+                    const horses = await GeminiAPI.fetchRaceData();
+                    State.currentRace.horses = horses;
+                    AppUI.renderHorseList();
+                    AppUI.switchScreen('main-screen');
+                    AppLogger.log("新しいレースデータを表示しました。");
+                } catch (error) {
+                    AppLogger.error("レース作成フローでエラー", error);
+                    alert("レースの作成に失敗しました。最初からやり直してください。");
+                    AppUI.switchScreen('init-screen');
+                }
+            },
+
+            addBet: function() {
+                const type = document.getElementById('bet-type').value;
+                const horse1 = parseInt(document.getElementById('bet-horse-1').value);
+                const amount = parseInt(document.getElementById('bet-amount').value);
+                let horse2 = null;
+
+                if (isNaN(amount) || amount <= 0) {
+                    alert("正しい金額を入力してください。");
+                    return;
+                }
+
+                // 現在のカート合計を計算
+                const currentTotal = State.cart.reduce((sum, bet) => sum + bet.amount, 0);
+                if (currentTotal + amount > State.wallet) {
+                    alert("所持金が足りません！");
+                    return;
+                }
+
+                if (type === 'quinella') {
+                    horse2 = parseInt(document.getElementById('bet-horse-2').value);
+                    if (horse1 === horse2) {
+                        alert("馬連は異なる馬番を選んでください。");
+                        return;
+                    }
+                }
+
+                const bet = {
+                    id: 'bet_' + Date.now() + Math.floor(Math.random() * 1000),
+                    type: type,
+                    horse1: horse1,
+                    horse2: horse2,
+                    amount: amount
+                };
+
+                State.cart.push(bet);
+                AppLogger.log(`馬券追加: ${JSON.stringify(bet)}`);
+                AppUI.renderCart();
+            },
+
+            removeBet: function(betId) {
+                State.cart = State.cart.filter(b => b.id !== betId);
+                AppLogger.log(`馬券削除: ${betId}`);
+                AppUI.renderCart();
+            },
+
+            startRace: function() {
+                if (State.cart.length === 0) {
+                    if(!confirm("馬券を買っていませんが、レースを見ますか？")) {
+                        return;
+                    }
+                }
+
+                AppLogger.log("レース発走処理開始");
+                
+                // 所持金からカート分を引く (確定)
+                const totalInvest = State.cart.reduce((sum, bet) => sum + bet.amount, 0);
+                State.wallet -= totalInvest;
+                AppUI.updateWallet();
+
+                // 簡易シミュレーション: オッズの逆数を確率の重みとして抽選
+                let horses = [...State.currentRace.horses];
+                
+                // 1着抽選
+                let weightSum1 = horses.reduce((sum, h) => sum + (1 / h.odds), 0);
+                let rand1 = Math.random() * weightSum1;
+                let firstPlace = null;
+                for (let h of horses) {
+                    rand1 -= (1 / h.odds);
+                    if (rand1 <= 0) {
+                        firstPlace = h;
+                        break;
+                    }
+                }
+                // フォールバック
+                if(!firstPlace) firstPlace = horses[0];
+
+                // 2着抽選 (1着を除外)
+                horses = horses.filter(h => h.number !== firstPlace.number);
+                let weightSum2 = horses.reduce((sum, h) => sum + (1 / h.odds), 0);
+                let rand2 = Math.random() * weightSum2;
+                let secondPlace = null;
+                for (let h of horses) {
+                    rand2 -= (1 / h.odds);
+                    if (rand2 <= 0) {
+                        secondPlace = h;
+                        break;
+                    }
+                }
+                if(!secondPlace) secondPlace = horses[0];
+
+                const results = [firstPlace, secondPlace];
+                AppLogger.log(`レース結果: 1着[${firstPlace.number}], 2着[${secondPlace.number}]`);
+
+                // 配当計算
+                let totalReturn = 0;
+                let payoutDetails = [];
+
+                State.cart.forEach(bet => {
+                    if (bet.type === 'win') {
+                        if (bet.horse1 === firstPlace.number) {
+                            const payout = Math.floor(bet.amount * firstPlace.odds);
+                            totalReturn += payout;
+                            payoutDetails.push({ name: `単勝 ${bet.horse1}番`, amount: payout });
+                        }
+                    } else if (bet.type === 'quinella') {
+                        // 馬連: 順不同で1着2着が含まれていれば当たり
+                        const isHit = (bet.horse1 === firstPlace.number && bet.horse2 === secondPlace.number) ||
+                                      (bet.horse1 === secondPlace.number && bet.horse2 === firstPlace.number);
+                        if (isHit) {
+                            // 馬連の簡易オッズ計算 (単勝オッズの掛け合わせを少し補正)
+                            const quinellaOdds = Math.max(2.0, (firstPlace.odds * secondPlace.odds) * 0.8);
+                            const payout = Math.floor(bet.amount * quinellaOdds);
+                            totalReturn += payout;
+                            payoutDetails.push({ name: `馬連 ${bet.horse1}-${bet.horse2}`, amount: payout });
+                        }
+                    }
+                });
+
+                State.wallet += totalReturn;
+                
+                const summary = {
+                    invest: totalInvest,
+                    return: totalReturn,
+                    net: totalReturn - totalInvest,
+                    details: payoutDetails
+                };
+
+                AppLogger.log(`払戻計算完了: 投資=${summary.invest}, 払戻=${summary.return}, 収支=${summary.net}`);
+
+                // 結果画面表示
+                AppUI.showResult(results, summary);
+            },
+
+            resetForNextRace: function() {
+                if (State.wallet <= 0) {
+                    alert("所持金が0円になりました...。破産です！\n初期化してやり直します。");
+                    State.wallet = 10000;
+                    AppUI.updateWallet();
+                    AppUI.switchScreen('init-screen');
+                    return;
+                }
+                this.createNewRace();
+            }
+        };
+
+        // 初期化実行
+        window.onload = () => {
+            App.init();
+        };
+
+    </script>
 </body>
 </html>
